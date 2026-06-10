@@ -55,14 +55,15 @@ export default function MemoryPage() {
 
   return (
     <AppShell>
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-100">AI Memory</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Everything PulseOS remembers about you — fully transparent and editable.
+      <header className="mb-lg">
+        <div className="eyebrow mb-1">Transparent by design</div>
+        <h1 className="text-[32px] font-semibold tracking-[-0.6px] text-ink">AI Memory</h1>
+        <p className="mt-1 text-[15px] text-body-mid">
+          Everything PulseOS remembers about you — fully visible and editable.
         </p>
       </header>
 
-      <form onSubmit={add} className="card mb-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
+      <form onSubmit={add} className="card mb-lg flex flex-col gap-md p-lg sm:flex-row sm:items-end">
         <div className="sm:w-40">
           <label className="label">Kind</label>
           <select className="input" value={kind} onChange={(e) => setKind(e.target.value)}>
@@ -83,32 +84,29 @@ export default function MemoryPage() {
           />
         </div>
         <button type="submit" disabled={busy} className="btn-primary">
-          <Plus className="h-4 w-4" />
-          Add
+          <Plus className="h-4 w-4" /> Add
         </button>
       </form>
 
       {loading ? (
         <div className="card h-40 animate-pulse" />
       ) : items.length === 0 ? (
-        <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <Brain className="mb-3 h-7 w-7 text-slate-600" />
-          <h3 className="text-base font-semibold text-slate-200">No memories yet</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Add goals and interests so briefings get sharper.
-          </p>
+        <div className="card flex flex-col items-center px-lg py-16 text-center">
+          <Brain className="mb-md h-7 w-7 text-mute-soft" />
+          <h3 className="text-[18px] font-medium text-ink">No memories yet</h3>
+          <p className="mt-1 text-[14px] text-body-mid">Add goals and interests so briefings get sharper.</p>
         </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-sm">
           {items.map((m) => (
-            <li key={m.id} className="card flex items-center justify-between gap-4 px-4 py-3">
+            <li key={m.id} className="card flex items-center justify-between gap-lg px-lg py-md">
               <div className="min-w-0">
                 <span className="chip mb-1">{m.kind}</span>
-                <p className="truncate text-sm text-slate-200">{m.content}</p>
+                <p className="truncate text-[15px] text-ink-strong">{m.content}</p>
               </div>
               <button
                 onClick={() => remove(m.id)}
-                className="btn-ghost px-2.5 py-1.5 text-slate-500 hover:text-signal-red"
+                className="btn-secondary btn-sm px-md text-mute hover:text-signal-red"
                 aria-label="Delete memory"
               >
                 <Trash2 className="h-3.5 w-3.5" />

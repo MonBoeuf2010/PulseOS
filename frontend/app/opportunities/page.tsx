@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Radar, Zap } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ConfidenceMeter } from "@/components/ConfidenceMeter";
+import { categoryAccent } from "@/lib/category";
 import { api, ApiError } from "@/lib/api";
 import type { Opportunity } from "@/lib/types";
 
@@ -50,65 +51,57 @@ export default function OpportunitiesPage() {
 
   return (
     <AppShell>
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-100">Opportunities</h1>
-        <p className="mt-1 text-sm text-slate-500">
+      <header className="mb-lg">
+        <div className="eyebrow mb-1">Opportunity Engine</div>
+        <h1 className="text-[32px] font-semibold tracking-[-0.6px] text-ink">Opportunities</h1>
+        <p className="mt-1 text-[15px] text-body-mid">
           Time-sensitive, asymmetric upside surfaced for you to act on.
         </p>
       </header>
 
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-md">
           {[0, 1].map((i) => (
             <div key={i} className="card h-28 animate-pulse" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <Radar className="mb-3 h-7 w-7 text-slate-600" />
-          <h3 className="text-base font-semibold text-slate-200">No open opportunities</h3>
-          <p className="mt-1 text-sm text-slate-500">New opportunities appear as signals arrive.</p>
+        <div className="card flex flex-col items-center px-lg py-16 text-center">
+          <Radar className="mb-md h-7 w-7 text-mute-soft" />
+          <h3 className="text-[18px] font-medium text-ink">No open opportunities</h3>
+          <p className="mt-1 text-[14px] text-body-mid">New opportunities appear as signals arrive.</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-md">
           {items.map((o) => {
             const ev = currency(o.expected_value);
+            const accent = categoryAccent(o.domain);
             return (
-              <article key={o.id} className="card p-5">
-                <div className="mb-3 flex items-start justify-between gap-4">
+              <article key={o.id} className="card p-3xl transition-shadow hover:shadow-lift">
+                <div className="mb-md flex items-start justify-between gap-lg">
                   <div>
-                    <span className="chip mb-2">{o.domain}</span>
-                    <h3 className="text-base font-semibold text-slate-100">{o.title}</h3>
+                    <span className={`chip mb-md border-transparent ${accent.soft} ${accent.text}`}>
+                      {o.domain}
+                    </span>
+                    <h3 className="text-[20px] font-medium tracking-[-0.2px] text-ink">{o.title}</h3>
                   </div>
                   {ev && (
                     <div className="text-right">
-                      <div className="text-[11px] uppercase tracking-wide text-slate-500">
-                        Est. value
-                      </div>
-                      <div className="font-mono text-lg font-semibold text-signal-green">{ev}</div>
+                      <div className="eyebrow">Est. value</div>
+                      <div className="font-mono text-[24px] font-medium text-signal-green">{ev}</div>
                     </div>
                   )}
                 </div>
                 {o.rationale && (
-                  <p className="mb-4 text-sm leading-relaxed text-slate-400">{o.rationale}</p>
+                  <p className="mb-lg text-[16px] leading-relaxed text-body">{o.rationale}</p>
                 )}
-                <div className="flex items-center justify-between border-t border-ink-700/60 pt-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] uppercase tracking-wide text-slate-500">
-                      Confidence
-                    </span>
+                <div className="flex items-center justify-between border-t border-hairline-soft pt-md">
+                  <div className="flex items-center gap-sm">
+                    <span className="eyebrow">Confidence</span>
                     <ConfidenceMeter value={o.confidence} />
                   </div>
-                  <button
-                    onClick={() => act(o.id)}
-                    disabled={acting === o.id}
-                    className="btn-primary px-3 py-1.5"
-                  >
-                    {acting === o.id ? (
-                      <Check className="h-3.5 w-3.5" />
-                    ) : (
-                      <Zap className="h-3.5 w-3.5" />
-                    )}
+                  <button onClick={() => act(o.id)} disabled={acting === o.id} className="btn-primary btn-sm">
+                    {acting === o.id ? <Check className="h-3.5 w-3.5" /> : <Zap className="h-3.5 w-3.5" />}
                     Act on this
                   </button>
                 </div>

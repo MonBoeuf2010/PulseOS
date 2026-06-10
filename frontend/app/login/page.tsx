@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Activity, ArrowRight } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 
@@ -19,11 +20,8 @@ export default function LoginPage() {
     setBusy(true);
     setError(null);
     try {
-      if (mode === "login") {
-        await api.login(email, password);
-      } else {
-        await api.register(email, password, displayName || undefined);
-      }
+      if (mode === "login") await api.login(email, password);
+      else await api.register(email, password, displayName || undefined);
       router.replace("/dashboard");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
@@ -33,19 +31,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center px-4">
+    <div className="grid min-h-screen place-items-center px-lg">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-accent shadow-glow">
-            <Activity className="h-6 w-6 text-white" />
+        <Link href="/" className="mb-2xl flex flex-col items-center text-center">
+          <div className="mb-md grid h-12 w-12 place-items-center rounded-md bg-primary">
+            <Activity className="h-6 w-6 text-on-primary" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-100">PulseOS</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            The highest-value action you should take right now.
+          <h1 className="text-[24px] font-semibold tracking-[-0.5px] text-ink">PulseOS</h1>
+          <p className="mt-1 text-[14px] text-body-mid">
+            {mode === "login" ? "Welcome back." : "Create your intelligence workspace."}
           </p>
-        </div>
+        </Link>
 
-        <form onSubmit={submit} className="card space-y-4 p-6">
+        <form onSubmit={submit} className="card space-y-lg p-2xl shadow-lift">
           {mode === "register" && (
             <div>
               <label className="label">Name</label>
@@ -82,7 +80,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="rounded-lg border border-signal-red/30 bg-signal-red/10 px-3 py-2 text-xs text-signal-red">
+            <p className="rounded-sm border border-accent-red/30 bg-accent-red/5 px-md py-sm text-[13px] text-signal-red">
               {error}
             </p>
           )}
@@ -98,11 +96,9 @@ export default function LoginPage() {
             setMode(mode === "login" ? "register" : "login");
             setError(null);
           }}
-          className="mt-4 w-full text-center text-xs text-slate-500 hover:text-slate-300"
+          className="mt-lg w-full text-center text-[13px] text-mute hover:text-ink"
         >
-          {mode === "login"
-            ? "No account? Create one"
-            : "Already have an account? Sign in"}
+          {mode === "login" ? "No account? Create one" : "Already have an account? Sign in"}
         </button>
       </div>
     </div>

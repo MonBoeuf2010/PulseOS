@@ -140,3 +140,48 @@ class CouncilReportOut(ORMModel):
     agent_traces: list[dict] = []
     cost_usd: float = 0
     latency_ms: int = 0
+
+
+# ---------- Chat ----------
+class ChatIn(BaseModel):
+    message: str = Field(min_length=1, max_length=4000)
+    conversation_id: UUID | None = None
+
+
+class ChatMessageOut(ORMModel):
+    id: UUID
+    role: str
+    content: str
+    created_at: datetime | None = None
+
+
+class ConversationOut(ORMModel):
+    id: UUID
+    title: str
+    updated_at: datetime | None = None
+
+
+class ConversationDetailOut(ORMModel):
+    id: UUID
+    title: str
+    messages: list[ChatMessageOut] = []
+
+
+# ---------- Community feed ----------
+class PostIn(BaseModel):
+    title: str = Field(min_length=2, max_length=160)
+    body: str = Field(min_length=1, max_length=6000)
+    category: str = "general"
+    confidence: float | None = None
+
+
+class PostOut(ORMModel):
+    id: UUID
+    author_name: str
+    category: str
+    title: str
+    body: str
+    confidence: float | None = None
+    reaction_count: int = 0
+    reacted: bool = False
+    created_at: datetime | None = None

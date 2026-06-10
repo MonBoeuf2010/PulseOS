@@ -7,20 +7,20 @@ export function confidenceColor(c: number): string {
 }
 
 function barColor(c: number): string {
-  if (c >= 0.75) return "bg-signal-green";
-  if (c >= 0.55) return "bg-signal-amber";
-  return "bg-signal-red";
+  if (c >= 0.75) return "bg-accent-green";
+  if (c >= 0.55) return "bg-accent-yellow";
+  return "bg-accent-red";
 }
 
 export function ConfidenceMeter({ value, label = true }: { value: number; label?: boolean }) {
   const pct = Math.round(value * 100);
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-ink-700">
+    <div className="flex items-center gap-sm">
+      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-hairline-soft">
         <div className={`h-full rounded-full ${barColor(value)}`} style={{ width: `${pct}%` }} />
       </div>
       {label && (
-        <span className={`font-mono text-xs font-semibold ${confidenceColor(value)}`}>{pct}%</span>
+        <span className={`font-mono text-[12px] font-medium ${confidenceColor(value)}`}>{pct}%</span>
       )}
     </div>
   );

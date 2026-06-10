@@ -51,16 +51,17 @@ export default function SearchPage() {
 
   return (
     <AppShell>
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-100">Universal Search</h1>
-        <p className="mt-1 text-sm text-slate-500">
+      <header className="mb-lg">
+        <div className="eyebrow mb-1">Universal search</div>
+        <h1 className="text-[32px] font-semibold tracking-[-0.6px] text-ink">Search</h1>
+        <p className="mt-1 text-[15px] text-body-mid">
           Search your signals and memory — or pressure-test a question with the Strategic Council.
         </p>
       </header>
 
-      <form onSubmit={runSearch} className="mb-6 flex gap-2">
+      <form onSubmit={runSearch} className="mb-lg flex gap-sm">
         <div className="relative flex-1">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <SearchIcon className="pointer-events-none absolute left-md top-1/2 h-4 w-4 -translate-y-1/2 text-mute" />
           <input
             className="input pl-9"
             value={q}
@@ -68,46 +69,41 @@ export default function SearchPage() {
             placeholder="Search signals, memory, or ask a strategic question…"
           />
         </div>
-        <button type="submit" disabled={searching} className="btn-ghost">
+        <button type="submit" disabled={searching} className="btn-secondary">
           Search
         </button>
-        <button
-          type="button"
-          onClick={analyze}
-          disabled={analyzing || !q.trim()}
-          className="btn-primary"
-        >
+        <button type="button" onClick={analyze} disabled={analyzing || !q.trim()} className="btn-primary">
           <Sparkles className="h-4 w-4" />
           {analyzing ? "Convening…" : "Ask the Council"}
         </button>
       </form>
 
       {report && (
-        <div className="mb-6">
+        <div className="mb-lg">
           <CouncilPanel report={report} />
         </div>
       )}
 
       {hits !== null && (
         <div>
-          <div className="mb-2 text-xs uppercase tracking-wide text-slate-500">
+          <div className="eyebrow mb-sm">
             {hits.length} result{hits.length === 1 ? "" : "s"} · {tookMs} ms
           </div>
           {hits.length === 0 ? (
-            <div className="card px-6 py-10 text-center text-sm text-slate-500">
+            <div className="card px-lg py-10 text-center text-[14px] text-body-mid">
               No matches. Try the Strategic Council instead.
             </div>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-sm">
               {hits.map((h) => (
-                <li key={`${h.type}-${h.id}`} className="card px-4 py-3">
-                  <div className="flex items-center gap-2">
+                <li key={`${h.type}-${h.id}`} className="card px-lg py-md">
+                  <div className="flex items-center gap-sm">
                     <span className="chip">{h.type}</span>
-                    {h.domain && <span className="text-xs text-slate-500">{h.domain}</span>}
-                    {h.source && <span className="text-xs text-slate-600">· {h.source}</span>}
+                    {h.domain && <span className="text-[13px] text-mute">{h.domain}</span>}
+                    {h.source && <span className="text-[13px] text-mute-soft">· {h.source}</span>}
                   </div>
-                  <p className="mt-1.5 text-sm font-medium text-slate-200">{h.title}</p>
-                  {h.snippet && <p className="mt-0.5 text-sm text-slate-500">{h.snippet}</p>}
+                  <p className="mt-1.5 text-[15px] font-medium text-ink">{h.title}</p>
+                  {h.snippet && <p className="mt-0.5 text-[14px] text-body-mid">{h.snippet}</p>}
                 </li>
               ))}
             </ul>

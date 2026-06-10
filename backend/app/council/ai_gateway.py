@@ -35,12 +35,34 @@ def _extract_subject(prompt: str) -> str:
     return prompt.strip()[:160]
 
 
-def _stub_completion(system: str, prompt: str) -> str:
-    """Deterministic, role-aware structured JSON so the pipeline is exercisable offline.
+def _last_user_turn(prompt: str) -> str:
+    """Pull the latest user message out of a transcript-style chat prompt."""
+    marker = "USER:"
+    idx = prompt.rfind(marker)
+    if idx >= 0:
+        return prompt[idx + len(marker):].strip()[:240]
+    return prompt.strip()[:240]
 
-    A configured ANTHROPIC_API_KEY replaces this with real model output; the JSON shape
-    here mirrors what the prompts in council/prompts.py instruct the models to return.
+
+def _stub_completion(system: str, prompt: str) -> str:
+    """Deterministic, role-aware output so the system is exercisable fully offline.
+
+    A configured ANTHROPIC_API_KEY replaces this with real model output. Chat mode
+    returns a conversational reply; council mode returns the structured JSON the
+    prompts in council/prompts.py instruct the models to produce.
     """
+    if "PULSEOS CHAT" in system.upper():
+        q = _last_user_turn(prompt)
+        return (
+            f"Here's my read on “{q}”.\n\n"
+            "Based on your current signals and memory, the asymmetric move is to act small and "
+            "soon rather than wait for certainty — the cost of a bounded first step is low and "
+            "reversible, while the cost of delay compounds.\n\n"
+            "• What I'd watch: the one or two signals most likely to change this call.\n"
+            "• What I'd do this week: a single reversible step, then a 30-day checkpoint.\n\n"
+            "Want me to convene the full Strategic Council on this and attach the evidence and "
+            "dissent? (Set ANTHROPIC_API_KEY for live, fully-reasoned answers.)"
+        )
     subject = _extract_subject(prompt)
     sys = system.lower()
     if "contrarian" in sys:

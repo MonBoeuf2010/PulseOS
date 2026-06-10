@@ -3,11 +3,15 @@
 import { clearSession, getSession, saveSession } from "./auth";
 import type {
   Briefing,
+  ChatReply,
+  Conversation,
+  ConversationDetail,
   CouncilReport,
   Dashboard,
   FeedbackVerdict,
   MemoryItem,
   Opportunity,
+  Post,
   SearchHit,
   TokenPair,
 } from "./types";
@@ -123,4 +127,19 @@ export const api = {
       body: { subject, domain, tier },
     }),
   getReport: (id: string) => request<CouncilReport>(`/council/reports/${id}`),
+
+  // ---- chat ----
+  chat: (message: string, conversationId?: string) =>
+    request<ChatReply>("/chat", {
+      method: "POST",
+      body: { message, conversation_id: conversationId },
+    }),
+  listConversations: () => request<Conversation[]>("/chat/conversations"),
+  getConversation: (id: string) => request<ConversationDetail>(`/chat/conversations/${id}`),
+
+  // ---- community feed ----
+  feed: () => request<Post[]>("/feed"),
+  createPost: (title: string, body: string, category: string, confidence?: number) =>
+    request<Post>("/feed", { method: "POST", body: { title, body, category, confidence } }),
+  reactToPost: (id: string) => request<Post>(`/feed/${id}/react`, { method: "POST" }),
 };

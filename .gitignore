@@ -31,5 +31,9 @@ out/
 .vscode/
 .idea/
 
+# Agent skills / tooling (installed locally, not product code)
+.agents/
+skills-lock.json
+
 # Logs
 *.log

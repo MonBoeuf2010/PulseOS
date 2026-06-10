@@ -92,3 +92,41 @@ export interface TokenPair {
 }
 
 export type FeedbackVerdict = "useful" | "not_useful" | "wrong" | "acted_on";
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at?: string;
+}
+
+export interface ChatReply {
+  conversation_id: string;
+  title: string;
+  reply: ChatMessage;
+  cost_usd: number;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  updated_at?: string;
+}
+
+export interface ConversationDetail {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+}
+
+export interface Post {
+  id: string;
+  author_name: string;
+  category: string;
+  title: string;
+  body: string;
+  confidence: number | null;
+  reaction_count: number;
+  reacted: boolean;
+  created_at?: string;
+}

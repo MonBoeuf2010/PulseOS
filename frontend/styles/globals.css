@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 html,
@@ -12,37 +12,69 @@ body {
 }
 
 body {
-  @apply bg-ink-950 text-slate-200 antialiased;
-  background-image:
-    radial-gradient(60rem 60rem at 110% -10%, rgba(59, 108, 255, 0.12), transparent 60%),
-    radial-gradient(50rem 50rem at -10% 10%, rgba(47, 210, 122, 0.06), transparent 55%);
-  background-attachment: fixed;
+  @apply bg-canvas font-sans text-body antialiased;
+  font-feature-settings: "ss01";
+  letter-spacing: -0.16px;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    @apply text-ink;
+  }
 }
 
 @layer components {
+  /* Level 1 — hairline card on canvas (DESIGN.md card-feature) */
   .card {
-    @apply rounded-2xl border border-ink-700/70 bg-ink-900/70 shadow-card backdrop-blur;
+    @apply rounded-md border border-hairline bg-canvas shadow-card;
   }
+  .card-flat {
+    @apply rounded-md border border-hairline bg-canvas;
+  }
+  .card-dark {
+    @apply rounded-md bg-primary text-on-primary;
+  }
+
+  /* Buttons — tight 4px geometry; weight never above 600 */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
-           transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm px-xl py-md text-[16px]
+           font-medium leading-none tracking-[-0.16px] transition-colors
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
+  .btn-sm {
+    @apply px-lg py-sm text-[14px];
+  }
+  /* Primary CTA is near-black, never a chromatic accent */
   .btn-primary {
-    @apply btn bg-accent text-white hover:bg-accent-glow shadow-glow;
+    @apply btn bg-primary text-on-primary hover:bg-ink-strong;
+  }
+  .btn-secondary {
+    @apply btn border border-hairline bg-canvas text-ink hover:bg-canvas-soft;
   }
   .btn-ghost {
-    @apply btn border border-ink-700 bg-ink-800/60 text-slate-300 hover:bg-ink-700/60;
+    @apply btn border border-transparent bg-transparent text-body hover:bg-canvas-soft;
   }
+
+  /* Eyebrow-style uppercase chip */
   .chip {
-    @apply inline-flex items-center rounded-full border border-ink-700 bg-ink-800/70 px-2.5 py-0.5
-           text-[11px] font-medium uppercase tracking-wide text-slate-400;
+    @apply inline-flex items-center rounded-sm border border-hairline bg-canvas px-sm py-xxs
+           text-[12px] font-medium uppercase leading-none tracking-[0.6px] text-mute;
   }
+
   .input {
-    @apply w-full rounded-xl border border-ink-700 bg-ink-850 px-3.5 py-2.5 text-sm text-slate-100
-           outline-none ring-accent/40 placeholder:text-slate-500 focus:ring-2;
+    @apply w-full rounded-sm border border-hairline bg-canvas px-lg py-md text-[16px] text-ink
+           outline-none transition-colors placeholder:text-mute-soft
+           focus:border-ink focus:ring-2 focus:ring-ink/10;
   }
   .label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+    @apply mb-xs block text-[12px] font-medium uppercase tracking-[0.6px] text-mute;
+  }
+
+  /* Eyebrow tag above section headers */
+  .eyebrow {
+    @apply text-[12px] font-medium uppercase tracking-[0.6px] text-mute;
   }
 }
 
@@ -51,5 +83,8 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-ink-700;
+  @apply rounded-full bg-hairline;
+}
+::selection {
+  background: rgba(122, 61, 255, 0.18);
 }

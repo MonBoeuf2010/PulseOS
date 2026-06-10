@@ -25,11 +25,13 @@ A **working end-to-end vertical slice**, not just a scaffold:
 - **Strategic Council Engine** — orchestrator, 7 agent prompts, confidence calibration, contradiction-aware synthesis with preserved dissent. Runs fully offline against a deterministic structured stub when no `ANTHROPIC_API_KEY` is set; swaps to the real Anthropic SDK when one is.
 - **Briefing pipeline** — gather signals → gate the council → calibrated, precision-first ranking (EV × confidence) → persisted briefing. Cold-start seeds a useful first briefing.
 - **Repositories + DB** — async SQLAlchemy over Postgres + pgvector, tenant-scoped queries, the full schema (tenants, users, memberships, sessions, briefings, items, memory, signals, council reports, opportunities, usage events, feedback).
-- **API** — dashboard, briefings (+ feedback), opportunities (+ act), memory (add/list/delete), council analyze/report, universal search (Postgres lexical fallback).
+- **AI Analyst chat** — a conversational analyst grounded in the user's own memory + latest briefing; multi-turn conversations persisted. Uses the AI Gateway (live Anthropic with a key, coherent offline stub without).
+- **Community feed** — users publish intelligence "calls"; cross-user community visibility with toggleable reactions.
+- **API** — dashboard, briefings (+ feedback), opportunities (+ act), memory (add/list/delete), council analyze/report, chat (+ conversations), community feed (+ react), universal search (Postgres lexical fallback).
 - **North-Star wired** — `acted_on` feedback / opportunity acts emit the WARU usage event and flow into the dashboard's realized-value analytics.
-- **Frontend** — Next.js 14 (App Router) + TypeScript + Tailwind: login, the flagship Intelligence Dashboard (ranked briefing cards, confidence meters, value tiles, feedback), opportunities, memory, and search with an "Ask the Council" panel.
+- **Frontend** — Next.js 14 (App Router) + TypeScript + Tailwind, styled to a Webflow-inspired design system (`DESIGN.md`): marketing landing + pricing, login, the flagship Intelligence Dashboard, AI Analyst chat, community feed, opportunities, memory, and search with an "Ask the Council" panel.
 
-Still stubbed for extension (marked `# SCAFFOLD`): OpenSearch hybrid/vector search + reranking, real ingestion connectors + embeddings, WebAuthn passkeys, Stripe billing, offline calibration fitting, and Alembic migrations (dev uses `create_all`).
+Still stubbed for extension (marked `# SCAFFOLD`): OpenSearch hybrid/vector search + reranking, real ingestion connectors + embeddings, WebAuthn passkeys, Stripe billing, offline calibration fitting, and Alembic migrations (dev uses `create_all`). `DESIGN.md` (Webflow-inspired tokens) is the UI reference followed by the frontend.
 
 ## Quick start — full stack (Docker)
 ```bash
