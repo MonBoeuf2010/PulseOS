@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import (Boolean, DateTime, ForeignKey, Numeric, String, Text, func)
+from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func)
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -76,5 +76,113 @@ class MemoryItem(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
-# CouncilReport, AgentTrace, Opportunity, Signal, Report, Reputation, etc. follow the
-# same pattern from the canonical schema (docs/phase-2/01-postgres-schema.md).
+class Membership(Base):
+    """User ↔ tenant link with role; basis for RBAC and tenant-switching."""
+    __tablename__ = "memberships"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    role: Mapped[str] = mapped_column(String, default="owner")  # owner|admin|member|viewer
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Session(Base):
+    """Server-side session backing rotating refresh tokens (reuse detection, revocation)."""
+    __tablename__ = "sessions"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    refresh_hash: Mapped[str] = mapped_column(String, index=True)  # sha256 of current refresh token
+    amr: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)  # auth methods (pwd, mfa)
+    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
+    revoked: Mapped[bool] = mapped_column(Boolean, default=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Signal(Base):
+    """Normalized, enriched ingestion unit; the raw material the council reasons over."""
+    __tablename__ = "signals"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), index=True, nullable=True)
+    source: Mapped[str] = mapped_column(String)
+    external_id: Mapped[str | None] = mapped_column(String, index=True, nullable=True)  # dedupe key
+    domain: Mapped[str] = mapped_column(String, default="general")
+    title: Mapped[str] = mapped_column(String)
+    snippet: Mapped[str | None] = mapped_column(Text, nullable=True)
+    url: Mapped[str | None] = mapped_column(String, nullable=True)
+    reliability: Mapped[float] = mapped_column(Numeric(5, 4), default=0.5)
+    impact: Mapped[float] = mapped_column(Numeric(5, 4), default=0.5)
+    entities: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(1536), nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class CouncilReport(Base):
+    """Auditable output of the Strategic Council Engine (Phase 6)."""
+    __tablename__ = "council_reports"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    subject: Mapped[str] = mapped_column(Text)
+    domain: Mapped[str] = mapped_column(String, default="general")
+    tier: Mapped[str] = mapped_column(String, default="fast")
+    executive_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    consensus: Mapped[str | None] = mapped_column(Text, nullable=True)
+    confidence: Mapped[float] = mapped_column(Numeric(5, 4), default=0.5)
+    dissent: Mapped[list[dict]] = mapped_column(JSONB, default=list)
+    recommended_actions: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    estimated_impact: Mapped[float | None] = mapped_column(Numeric(14, 2), nullable=True)
+    cost_of_inaction: Mapped[str | None] = mapped_column(Text, nullable=True)
+    evidence: Mapped[list[dict]] = mapped_column(JSONB, default=list)
+    agent_traces: Mapped[list[dict]] = mapped_column(JSONB, default=list)
+    cost_usd: Mapped[float] = mapped_column(Numeric(10, 6), default=0)
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Opportunity(Base):
+    """A surfaced, actionable opportunity (Opportunity Engine, Phase 2.6)."""
+    __tablename__ = "opportunities"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    domain: Mapped[str] = mapped_column(String, default="general")
+    title: Mapped[str] = mapped_column(String)
+    rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String, default="open")  # open|acted|dismissed|expired
+    confidence: Mapped[float] = mapped_column(Numeric(5, 4), default=0.6)
+    expected_value: Mapped[float | None] = mapped_column(Numeric(14, 2), nullable=True)
+    council_report_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class UsageEvent(Base):
+    """Product + billing telemetry. `opportunity_acted` is the North-Star WARU event."""
+    __tablename__ = "usage_events"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), index=True, nullable=True)
+    kind: Mapped[str] = mapped_column(String, index=True)
+    target_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    value: Mapped[dict] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Feedback(Base):
+    """User verdict on a briefing item; trains ranking + memory."""
+    __tablename__ = "feedback"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    briefing_item_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    verdict: Mapped[str] = mapped_column(String)  # useful|not_useful|wrong|acted_on
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+__all__ = [
+    "Tenant", "User", "Membership", "Session", "Briefing", "BriefingItem",
+    "MemoryItem", "Signal", "CouncilReport", "Opportunity", "UsageEvent", "Feedback",
+]

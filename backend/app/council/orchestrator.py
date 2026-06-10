@@ -124,7 +124,8 @@ class CouncilEngine:
             cost_usd=total_cost, latency_ms=0)
 
     async def _agent(self, role: str, prompt: str, domain: str, max_tokens: int = 600) -> dict:
-        system = REGISTRY[role].format(domain=domain) if "{domain}" in REGISTRY[role] else REGISTRY[role]
+        # Targeted replace (not str.format): prompts also contain literal JSON braces.
+        system = REGISTRY[role].replace("{domain}", domain)
         r = await self.ai.complete(prompt=prompt, system=system, tier="full",
                                    tenant_scoped=True, max_tokens=max_tokens)
         return {"raw": r.text, "parsed": _safe_json(r.text), "cost": r.cost_usd, "role": role}

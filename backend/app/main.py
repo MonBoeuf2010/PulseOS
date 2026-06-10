@@ -13,9 +13,13 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup: warm caches, verify migrations, connect brokers (SCAFFOLD)
+    # In dev, create the schema on startup so the app runs without a separate
+    # migration step. In prod (env != development) schema is owned by Alembic.
+    if settings.env == "development":
+        from app.core.bootstrap import init_db
+        await init_db()
     yield
-    # shutdown: drain connections
+    # shutdown: drain connections (engine disposed by process exit)
 
 
 app = FastAPI(title="PulseOS API", version="1.0.0", lifespan=lifespan,

@@ -1,39 +1,67 @@
-"""Auth endpoints: login, refresh, MFA, passkeys (Phase 3). Core flows scaffolded."""
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, EmailStr
+"""Auth endpoints: register, login, refresh, logout, passkeys (Phase 3).
+
+Password flows are wired to AuthService. Refresh tokens are returned in the body
+for API clients and SHOULD additionally be set as a Secure, HttpOnly, SameSite=Strict
+cookie by the edge for browser clients.
+"""
+from fastapi import APIRouter, Header, Request, Response, status
+
+from app.schemas import LoginIn, RefreshIn, RegisterIn, TokenPair
+from app.services.auth_service import AuthService
 
 router = APIRouter()
+_auth = AuthService()
 
 
-class LoginIn(BaseModel):
-    method: str = "password"
-    email: EmailStr | None = None
-    password: str | None = None
-    provider: str | None = None
-    code: str | None = None
+def _set_refresh_cookie(response: Response, token: str | None, max_age: int) -> None:
+    if token:
+        response.set_cookie("pulse_rt", token, max_age=max_age, httponly=True,
+                            secure=True, samesite="strict", path="/v1/auth")
 
 
-class TokenPair(BaseModel):
-    access_token: str
-    token_type: str = "Bearer"
-    expires_in: int = 900
-    mfa_required: bool = False
+@router.post("/register", response_model=TokenPair, status_code=status.HTTP_201_CREATED)
+async def register(body: RegisterIn, response: Response,
+                   user_agent: str | None = Header(default=None)):
+    tokens = await _auth.register(email=body.email, password=body.password,
+                                  display_name=body.display_name,
+                                  tenant_name=body.tenant_name, user_agent=user_agent)
+    _set_refresh_cookie(response, tokens.refresh_token, tokens.expires_in)
+    return tokens
 
 
 @router.post("/login", response_model=TokenPair)
-async def login(body: LoginIn):
-    # SCAFFOLD: verify credential (Argon2id) / OAuth code → issue access+refresh,
-    # create session row, set rotating refresh cookie, return mfa_required if step-up needed.
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "wire to AuthService")
+async def login(body: LoginIn, response: Response,
+                user_agent: str | None = Header(default=None)):
+    if body.method != "password" or not body.email or not body.password:
+        # OAuth / passkey methods are handled by their dedicated routes (R2+).
+        from fastapi import HTTPException
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "unsupported login method")
+    tokens = await _auth.login(email=body.email, password=body.password, user_agent=user_agent)
+    _set_refresh_cookie(response, tokens.refresh_token, tokens.expires_in)
+    return tokens
 
 
 @router.post("/refresh", response_model=TokenPair)
-async def refresh():
-    # SCAFFOLD: rotating refresh-token verification + reuse detection → new access token.
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, "wire to AuthService")
+async def refresh(response: Response, request: Request, body: RefreshIn | None = None):
+    # Prefer the HttpOnly cookie; fall back to a body token for non-browser clients.
+    token = request.cookies.get("pulse_rt") or (body.refresh_token if body else None)
+    if not token:
+        from fastapi import HTTPException
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "missing refresh token")
+    tokens = await _auth.refresh(refresh_token=token)
+    _set_refresh_cookie(response, tokens.refresh_token, tokens.expires_in)
+    return tokens
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(response: Response, request: Request, body: RefreshIn | None = None):
+    token = request.cookies.get("pulse_rt") or (body.refresh_token if body else None)
+    if token:
+        await _auth.logout(refresh_token=token)
+    response.delete_cookie("pulse_rt", path="/v1/auth")
 
 
 @router.post("/passkey/login/options")
 async def passkey_options():
-    # SCAFFOLD: WebAuthn assertion challenge.
+    # SCAFFOLD: WebAuthn assertion challenge (R2 — webauthn dep already declared).
     return {"challenge": "...", "rpId": "pulseos.com"}
