@@ -117,7 +117,8 @@ async def customer_portal(subject: Subject = Depends(current_subject),
 
 # Pro (ad-free) plans. "basic" is a paid but ad-supported tier; everyone not on
 # an active Pro plan sees ads (the ad-revenue gate the frontend reads).
-PRO_PLANS = {"monthly", "yearly"}
+# "ios_iap" comes from the RevenueCat webhook (Apple/Google IAP) — also Pro.
+PRO_PLANS = {"monthly", "yearly", "ios_iap"}
 
 
 @router.get("/status")

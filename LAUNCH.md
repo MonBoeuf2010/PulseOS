@@ -124,13 +124,20 @@ server: { url: "https://pulseos.vercel.app", cleartext: false }
 - Add **Sign in with Apple** if you offer social login (required when you have
   third-party login; you currently use email/password, so this is optional).
 - **In-app purchases:** ⚠️ Apple requires digital subscriptions to use **Apple
-  IAP** (StoreKit), *not* Stripe, inside the iOS app (15–30% fee). Two options:
-  - **Easiest to ship:** make the iOS app's premium features purchasable via
-    Apple IAP, OR
-  - **No IAP at launch:** ship iOS as a free, read-only-ish app and have users
-    upgrade on the **web** (don't link to web checkout from inside the app —
-    that violates guidelines). Stripe stays for web; add Apple IAP later.
-  - Recommended: launch web with Stripe now; add Apple IAP in v1.1.
+  IAP** (StoreKit), *not* Stripe, inside the iOS app (15–30% fee). **The backend
+  is already wired for this** via a RevenueCat webhook (`/v1/iap/webhook`) — the
+  same `Subscription` row flips to ad-free Pro for both Stripe (web) and IAP (iOS).
+  To turn it on:
+  1. 🟢 Create a **RevenueCat** account (free), add your App Store app + the IAP
+     subscription products, and copy the API key.
+  2. In the iOS app add the RevenueCat SDK and call `Purchases.logIn(<your user
+     UUID>)` — **use the same user UUID as the backend** (the app_user_id the
+     webhook reads; one id everywhere, no guessing).
+  3. 🟢 RevenueCat → Integrations → Webhooks: URL `https://<api-domain>/v1/iap/webhook`,
+     set the Authorization header to a secret and put the same value in
+     `REVENUECAT_WEBHOOK_AUTH` in the backend `.env`.
+  - Recommended sequencing: launch **web + Stripe today**; add the iOS IAP flow
+    (steps above) when you submit the app — no backend changes needed.
 
 ### E4. Build, test, submit
 1. ⚙️ `npx cap open ios` → opens Xcode.
