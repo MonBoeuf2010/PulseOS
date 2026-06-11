@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     # Billing
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
+    stripe_price_monthly: str = ""
+    stripe_price_yearly: str = ""
+    frontend_base_url: str = "http://localhost:3000"
 
     cors_origins: list[str] = ["http://localhost:3000"]
 

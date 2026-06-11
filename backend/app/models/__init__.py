@@ -231,8 +231,37 @@ class PostReaction(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class Attachment(Base):
+    """A file a user explicitly uploaded; may be linked to a feed post."""
+    __tablename__ = "attachments"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    post_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("posts.id", ondelete="CASCADE"), nullable=True, index=True)
+    content_type: Mapped[str] = mapped_column(String)
+    original_name: Mapped[str] = mapped_column(String)   # shown in UI only
+    storage_key: Mapped[str] = mapped_column(String)     # uuid-based, no PII
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Subscription(Base):
+    """Stripe-backed premium subscription; the webhook is the source of truth."""
+    __tablename__ = "subscriptions"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), unique=True, index=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    plan: Mapped[str] = mapped_column(String, default="free")        # free|monthly|yearly
+    status: Mapped[str] = mapped_column(String, default="inactive")  # active|past_due|canceled|inactive
+    current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 __all__ = [
     "Tenant", "User", "Membership", "Session", "Briefing", "BriefingItem",
     "MemoryItem", "Signal", "CouncilReport", "Opportunity", "UsageEvent", "Feedback",
-    "Conversation", "ChatMessage", "Post", "PostReaction",
+    "Conversation", "ChatMessage", "Post", "PostReaction", "Attachment", "Subscription",
 ]

@@ -20,6 +20,7 @@ celery_app.conf.update(
 
 celery_app.conf.beat_schedule = {
     "daily-briefings": {"task": "app.workers.tasks.schedule_briefings", "schedule": crontab(hour=6, minute=0)},
+    "hourly-rss-ingest": {"task": "app.workers.tasks.ingest_rss", "schedule": crontab(minute=0)},
     "retention-sweep": {"task": "app.workers.tasks.retention_sweep", "schedule": crontab(hour=3, minute=0)},
     "calibration-recompute": {"task": "app.workers.tasks.recompute_calibration", "schedule": crontab(hour=4, minute=0)},
 }

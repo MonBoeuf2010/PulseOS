@@ -173,6 +173,7 @@ class PostIn(BaseModel):
     body: str = Field(min_length=1, max_length=6000)
     category: str = "general"
     confidence: float | None = None
+    attachment_ids: list[UUID] = []
 
 
 class PostOut(ORMModel):
@@ -185,3 +186,4 @@ class PostOut(ORMModel):
     reaction_count: int = 0
     reacted: bool = False
     created_at: datetime | None = None
+    attachments: list[dict] = []
