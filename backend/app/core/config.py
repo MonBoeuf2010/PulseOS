@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     stripe_price_monthly: str = ""               # Pro monthly
     stripe_price_yearly: str = ""                # Pro yearly
     frontend_base_url: str = "http://localhost:3000"
+    revenuecat_webhook_auth: str = ""            # shared secret for the iOS IAP webhook
 
     cors_origins: list[str] = ["http://localhost:3000"]
 

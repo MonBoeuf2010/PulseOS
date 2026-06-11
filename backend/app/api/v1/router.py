@@ -1,7 +1,7 @@
 """Aggregate v1 routers. Each maps to a service boundary (Phase 2.5)."""
 from fastapi import APIRouter
 
-from app.api.v1 import (auth, billing, briefings, chat, council, feed, memory,
+from app.api.v1 import (auth, billing, briefings, chat, council, feed, iap, memory,
                         opportunities, search, uploads)
 
 api_router = APIRouter()
@@ -15,4 +15,5 @@ api_router.include_router(memory.router, prefix="/memory", tags=["memory"])
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(uploads.router, prefix="/uploads", tags=["uploads"])
 api_router.include_router(billing.router, prefix="/billing", tags=["billing"])
+api_router.include_router(iap.router, prefix="/iap", tags=["iap"])
 # R2+: follows, companies, meetings, admin, privacy (same pattern).
