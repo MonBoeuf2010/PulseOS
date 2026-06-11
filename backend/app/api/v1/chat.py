@@ -1,10 +1,12 @@
 """AI Chat endpoints — the conversational intelligence analyst."""
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_subject, db
+from app.core.limits import enforce_ai_quota, is_premium, record_ai_usage
+from app.core.ratelimit import CHAT_LIMIT, limiter
 from app.core.security import Subject
 from app.repositories.chat import ChatRepository
 from app.schemas import ChatIn, ChatMessageOut, ConversationDetailOut, ConversationOut
@@ -14,11 +16,19 @@ router = APIRouter()
 
 
 @router.post("")
-async def send(body: ChatIn, subject: Subject = Depends(current_subject),
+@limiter.limit(CHAT_LIMIT)
+async def send(request: Request, response: Response, body: ChatIn,
+               subject: Subject = Depends(current_subject),
                session: AsyncSession = Depends(db)):
-    return await ChatService(session).send(
+    # Free tier gets a daily cap; premium a generous one. Global spend kill-switch too.
+    premium = await is_premium(session, subject.user_id)
+    await enforce_ai_quota(session, user_id=subject.user_id, premium=premium)
+    result = await ChatService(session).send(
         tenant_id=subject.tenant_id, user_id=subject.user_id,
         convo_id=body.conversation_id, message=body.message)
+    await record_ai_usage(session, tenant_id=subject.tenant_id, user_id=subject.user_id,
+                          kind="chat", cost_usd=float(result.get("cost_usd", 0.0)))
+    return result
 
 
 @router.get("/conversations", response_model=list[ConversationOut])

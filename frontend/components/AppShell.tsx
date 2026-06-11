@@ -11,6 +11,7 @@ import {
   MessagesSquare,
   Radar,
   Search,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { clearSession, getSession } from "@/lib/auth";
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/opportunities", label: "Opportunities", icon: Radar },
   { href: "/memory", label: "Memory", icon: Brain },
   { href: "/search", label: "Search", icon: Search },
+  { href: "/pricing", label: "Upgrade", icon: Sparkles },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

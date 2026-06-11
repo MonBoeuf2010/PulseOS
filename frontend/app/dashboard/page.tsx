@@ -7,15 +7,26 @@ import { MessagesSquare, RefreshCw, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { AnalyticsTiles } from "@/components/AnalyticsTiles";
 import { BriefingCard } from "@/components/BriefingCard";
+import { AdSlot } from "@/components/AdSlot";
 import { api, ApiError } from "@/lib/api";
+import { useEntitlements } from "@/lib/useEntitlements";
 import type { Dashboard } from "@/lib/types";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { status } = useEntitlements();
   const [data, setData] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [justUpgraded, setJustUpgraded] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("upgraded")) {
+      setJustUpgraded(true);
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -72,11 +83,35 @@ export default function DashboardPage() {
         </div>
       </header>
 
+      {justUpgraded && (
+        <p className="mb-md rounded-sm border border-accent-green/30 bg-accent-green/5 px-lg py-md text-[14px] text-signal-green">
+          You’re upgraded — welcome to Pro. Ads are off and the full Strategic Council is unlocked.
+        </p>
+      )}
+
+      {!status.pro && (
+        <div className="card-dark mb-lg flex flex-wrap items-center justify-between gap-md p-lg shadow-lift">
+          <div>
+            <div className="text-[15px] font-medium text-on-primary">
+              {status.plan === "basic" ? "Go ad-free with Pro" : "Unlock the full Strategic Council"}
+            </div>
+            <p className="mt-0.5 text-[13px] text-on-primary/70">
+              Unlimited briefings, live AI reasoning, and no ads. Try Pro free for 2 weeks.
+            </p>
+          </div>
+          <Link href="/pricing" className="btn bg-on-primary text-ink hover:bg-hairline-soft">
+            <Sparkles className="h-4 w-4" /> Upgrade
+          </Link>
+        </div>
+      )}
+
       {data && (
         <div className="mb-lg">
           <AnalyticsTiles analytics={data.analytics} />
         </div>
       )}
+
+      <AdSlot className="mb-lg" />
 
       {error && (
         <p className="mb-md rounded-sm border border-accent-red/30 bg-accent-red/5 px-lg py-md text-[14px] text-signal-red">

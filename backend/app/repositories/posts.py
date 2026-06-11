@@ -63,7 +63,7 @@ class PostRepository:
         for a in res.scalars().all():
             out.setdefault(a.post_id, []).append(
                 {"id": str(a.id), "content_type": a.content_type,
-                 "url": f"/api/v1/uploads/{a.id}"})
+                 "url": f"/v1/uploads/{a.id}"})
         return out
 
     async def reacted_ids(self, user_id: UUID, post_ids: list[UUID]) -> set[UUID]:

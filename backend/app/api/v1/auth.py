@@ -6,6 +6,7 @@ cookie by the edge for browser clients.
 """
 from fastapi import APIRouter, Header, Request, Response, status
 
+from app.core.ratelimit import AUTH_LIMIT, limiter
 from app.schemas import LoginIn, RefreshIn, RegisterIn, TokenPair
 from app.services.auth_service import AuthService
 
@@ -20,7 +21,8 @@ def _set_refresh_cookie(response: Response, token: str | None, max_age: int) -> 
 
 
 @router.post("/register", response_model=TokenPair, status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterIn, response: Response,
+@limiter.limit(AUTH_LIMIT)
+async def register(request: Request, body: RegisterIn, response: Response,
                    user_agent: str | None = Header(default=None)):
     tokens = await _auth.register(email=body.email, password=body.password,
                                   display_name=body.display_name,
@@ -30,7 +32,8 @@ async def register(body: RegisterIn, response: Response,
 
 
 @router.post("/login", response_model=TokenPair)
-async def login(body: LoginIn, response: Response,
+@limiter.limit(AUTH_LIMIT)
+async def login(request: Request, body: LoginIn, response: Response,
                 user_agent: str | None = Header(default=None)):
     if body.method != "password" or not body.email or not body.password:
         # OAuth / passkey methods are handled by their dedicated routes (R2+).

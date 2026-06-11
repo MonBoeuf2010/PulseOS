@@ -2,8 +2,10 @@
 
 import { clearSession, getSession, saveSession } from "./auth";
 import type {
+  BillingStatus,
   Briefing,
   ChatReply,
+  CheckoutPlan,
   Conversation,
   ConversationDetail,
   CouncilReport,
@@ -14,6 +16,7 @@ import type {
   Post,
   SearchHit,
   TokenPair,
+  UploadedFile,
 } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
@@ -139,7 +142,56 @@ export const api = {
 
   // ---- community feed ----
   feed: () => request<Post[]>("/feed"),
-  createPost: (title: string, body: string, category: string, confidence?: number) =>
-    request<Post>("/feed", { method: "POST", body: { title, body, category, confidence } }),
+  createPost: (
+    title: string,
+    body: string,
+    category: string,
+    confidence?: number,
+    attachmentIds: string[] = [],
+  ) =>
+    request<Post>("/feed", {
+      method: "POST",
+      body: { title, body, category, confidence, attachment_ids: attachmentIds },
+    }),
   reactToPost: (id: string) => request<Post>(`/feed/${id}/react`, { method: "POST" }),
+
+  // ---- uploads (multipart; privacy-first attachments) ----
+  uploadFile: (file: File) => upload(file),
+
+  // ---- billing / entitlements ----
+  billingStatus: () => request<BillingStatus>("/billing/status"),
+  createCheckout: (plan: CheckoutPlan) =>
+    request<{ checkout_url: string }>("/billing/checkout", { method: "POST", body: { plan } }),
+  billingPortal: () => request<{ portal_url: string }>("/billing/portal", { method: "POST" }),
 };
+
+/** Multipart upload — bypasses the JSON `request()` helper but reuses its auth + error shape. */
+async function upload(file: File): Promise<UploadedFile> {
+  const session = getSession();
+  if (!session) throw new ApiError(401, "not authenticated");
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${BASE}/v1/uploads`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      "X-Tenant-Id": session.tenantId,
+    },
+    body: form,
+    credentials: "include",
+  });
+  if (res.status === 401) {
+    clearSession();
+    throw new ApiError(401, "session expired");
+  }
+  if (!res.ok) {
+    let detail = res.statusText;
+    try {
+      detail = ((await res.json()) as { detail?: string }).detail ?? detail;
+    } catch {
+      /* ignore */
+    }
+    throw new ApiError(res.status, detail);
+  }
+  return (await res.json()) as UploadedFile;
+}

@@ -35,11 +35,17 @@ class Settings(BaseSettings):
     council_full_max_usd: float = 0.50
     council_gate_threshold: float = 0.6          # value*uncertainty*relevance gate
 
+    # AI usage caps (launch hardening, Step 5.4) — protect the API budget.
+    free_daily_ai_limit: int = 25                # chat/council calls per free user per day
+    premium_daily_ai_limit: int = 1000           # generous ceiling for paying users
+    global_daily_ai_spend_cap_usd: float = 50.0  # hard kill-switch across all users/day
+
     # Billing
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
-    stripe_price_monthly: str = ""
-    stripe_price_yearly: str = ""
+    stripe_price_basic: str = ""                 # Basic $5/mo (ad-supported)
+    stripe_price_monthly: str = ""               # Pro monthly
+    stripe_price_yearly: str = ""                # Pro yearly
     frontend_base_url: str = "http://localhost:3000"
 
     cors_origins: list[str] = ["http://localhost:3000"]
