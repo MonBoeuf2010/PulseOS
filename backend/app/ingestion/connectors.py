@@ -52,3 +52,33 @@ class PersonalCalendarConnector(Connector):
 REGISTRY: dict[str, type[Connector]] = {
     "rss": RSSNewsConnector, "market": MarketDataConnector, "calendar": PersonalCalendarConnector,
 }
+
+
+# Default public feeds — free, no API keys. Add feeds for your users' verticals.
+FEEDS = [
+    "https://hnrss.org/frontpage",
+    "https://feeds.arstechnica.com/arstechnica/index",
+]
+
+
+def pull_rss(feeds: list[str] | None = None) -> list[dict]:
+    """Fetch RSS entries as raw signal dicts (shape consumed by enrich_signal_sync).
+
+    Dedupe happens downstream on external_id, so re-pulling the same feed is safe.
+    """
+    import feedparser  # heavy import kept local to the call
+
+    out: list[dict] = []
+    for url in (feeds or FEEDS):
+        parsed = feedparser.parse(url)
+        for e in parsed.entries[:20]:
+            out.append({
+                "source": parsed.feed.get("title", url),
+                "external_id": e.get("id") or e.get("link"),
+                "domain": "market",
+                "title": e.get("title", "(untitled)"),
+                "snippet": (e.get("summary") or "")[:500],
+                "url": e.get("link"),
+                "reliability": 0.6, "impact": 0.5,
+            })
+    return out

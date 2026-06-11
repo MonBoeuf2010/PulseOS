@@ -140,10 +140,74 @@ def build_briefing(self, tenant_id: str, user_id: str, job_id: str):
     return asyncio.run(build_briefing_sync(UUID(tenant_id), UUID(user_id), job_id))
 
 
+async def schedule_briefings_sync() -> dict:
+    """Fan out one build_briefing per active user (the daily automation loop)."""
+    import uuid as uuid_lib
+    from app.models import Membership
+
+    async with tenant_session(None) as session:
+        res = await session.execute(select(Membership))
+        memberships = list(res.scalars().all())
+
+    count = 0
+    for m in memberships:
+        job_id = str(uuid_lib.uuid4())
+        try:
+            # Through the broker when workers are running...
+            build_briefing.delay(str(m.tenant_id), str(m.user_id), job_id)
+        except Exception:
+            # ...inline fallback in dev with no broker.
+            await build_briefing_sync(m.tenant_id, m.user_id, job_id)
+        count += 1
+    return {"scheduled": count}
+
+
 @celery_app.task(name="app.workers.tasks.schedule_briefings")
 def schedule_briefings():
-    # fan out build_briefing per active user on their schedule (R2: read schedules table)
-    return {"scheduled": 0}
+    return asyncio.run(schedule_briefings_sync())
+
+
+async def moderate_post_sync(post_id: str) -> dict:
+    """AI first-pass moderation for new feed posts (BLOCK spam/abuse)."""
+    from uuid import UUID as _UUID
+    from app.models import Post
+    gateway = AIGateway()
+    async with tenant_session(None) as session:
+        post = await session.get(Post, _UUID(post_id))
+        if post is None:
+            return {"ok": False}
+        verdict = await gateway.complete_fast(
+            system=("You are a content moderator. Reply with exactly one word: "
+                    "ALLOW, REVIEW, or BLOCK. BLOCK only spam, scams, doxxing, "
+                    "or harassment. REVIEW borderline cases."),
+            prompt=f"Title: {post.title}\n\nBody: {post.body[:2000]}")
+        decision = (verdict or "REVIEW").strip().upper()
+        if "BLOCK" in decision:
+            await session.delete(post)
+            return {"ok": True, "action": "blocked"}
+        return {"ok": True, "action": "allowed"}
+
+
+@celery_app.task(name="app.workers.tasks.moderate_post")
+def moderate_post(post_id: str):
+    return asyncio.run(moderate_post_sync(post_id))
+
+
+async def ingest_rss_sync() -> dict:
+    """Pull configured RSS feeds → enrich each entry into a Signal (deduped)."""
+    from app.ingestion.connectors import pull_rss
+    raws = pull_rss()
+    ingested = 0
+    for raw in raws:
+        res = await enrich_signal_sync(raw)
+        if res.get("ok") and not res.get("deduped"):
+            ingested += 1
+    return {"pulled": len(raws), "ingested": ingested}
+
+
+@celery_app.task(name="app.workers.tasks.ingest_rss")
+def ingest_rss():
+    return asyncio.run(ingest_rss_sync())
 
 
 @celery_app.task(name="app.workers.tasks.notify")

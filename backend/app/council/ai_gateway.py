@@ -160,6 +160,17 @@ class AIGateway:
         cost = ti / 1e6 * 5 + to / 1e6 * 25  # SCAFFOLD pricing; route to live price table
         return LLMResponse(text=text, model=model, tokens_in=ti, tokens_out=to, cost_usd=cost)
 
+    async def complete_fast(self, *, prompt: str, system: str = "",
+                            max_tokens: int = 32) -> str:
+        """Thin helper for cheap, short calls (e.g. moderation) on the fast model.
+
+        Routes through the standard completion path (PII redaction, metering) but
+        pins the fast tier and returns just the text. Public/non-tenant by default.
+        """
+        resp = await self.complete(prompt=prompt, system=system, tier="fast",
+                                   tenant_scoped=False, max_tokens=max_tokens)
+        return resp.text
+
     async def embed(self, text: str) -> list[float]:
         """SCAFFOLD: returns zero vector without a key; real impl calls embedding model."""
         if not settings.anthropic_api_key:
