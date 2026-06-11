@@ -135,27 +135,27 @@ export default function Home() {
           <div className="lg:col-span-1">
             <div className="eyebrow mb-sm">Pricing</div>
             <h2 className="text-[32px] font-medium tracking-[-0.5px] text-ink">
-              One plan. Pays for itself in a single call.
+              Try Pro free for 2 weeks. Pays for itself in a single call.
             </h2>
             <p className="mt-md text-[15px] leading-relaxed text-body-mid">
-              Start free. Upgrade when the briefing earns its keep.
+              No card to start your trial. Keep it when the briefing earns its keep.
             </p>
           </div>
           <div className="card p-3xl lg:col-span-1">
-            <div className="eyebrow">Free</div>
+            <div className="eyebrow">Basic</div>
             <div className="mt-sm flex items-end gap-1">
-              <span className="text-[40px] font-semibold tracking-[-1px] text-ink">$0</span>
-              <span className="mb-2 text-[14px] text-mute">/ forever</span>
+              <span className="text-[40px] font-semibold tracking-[-1px] text-ink">$5</span>
+              <span className="mb-2 text-[14px] text-mute">/ month</span>
             </div>
             <ul className="mt-lg space-y-sm text-[14px] text-body">
-              {["Daily briefing (3 actions)", "AI analyst (basic)", "Community feed", "Transparent memory"].map((f) => (
+              {["Daily briefing (3 actions)", "AI analyst (basic)", "Community feed", "Ad-supported"].map((f) => (
                 <li key={f} className="flex items-center gap-sm">
                   <Check className="h-4 w-4 text-signal-green" /> {f}
                 </li>
               ))}
             </ul>
             <Link href="/login" className="btn-secondary mt-lg w-full">
-              Start free
+              Choose Basic
             </Link>
           </div>
           <div className="card-dark relative p-3xl shadow-lift lg:col-span-1">
@@ -166,8 +166,11 @@ export default function Home() {
               Pro
             </div>
             <div className="mt-sm flex items-end gap-1">
-              <span className="text-[40px] font-semibold tracking-[-1px] text-on-primary">$50</span>
+              <span className="text-[40px] font-semibold tracking-[-1px] text-on-primary">$15</span>
               <span className="mb-2 text-[14px] text-on-primary/60">/ month</span>
+            </div>
+            <div className="mt-xs text-[13px] font-medium text-accent-green">
+              2-week free trial — no ads
             </div>
             <ul className="mt-lg space-y-sm text-[14px] text-on-primary/90">
               {[
@@ -182,7 +185,7 @@ export default function Home() {
               ))}
             </ul>
             <Link href="/login" className="btn mt-lg w-full bg-on-primary text-ink hover:bg-hairline-soft">
-              Go Pro <ArrowRight className="h-4 w-4" />
+              Start 2-week free trial <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
