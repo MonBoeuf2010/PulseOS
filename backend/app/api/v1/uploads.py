@@ -26,13 +26,14 @@ import uuid as uuid_lib
 from pathlib import Path
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_subject, db
-from app.core.security import Subject
+from app.core.db import tenant_session
+from app.core.security import Subject, verify_access_token
 
 router = APIRouter()
 
@@ -97,24 +98,46 @@ async def upload(file: UploadFile = File(...),
     await session.flush()
     return {"id": str(att.id), "content_type": att.content_type,
             "original_name": att.original_name, "size_bytes": att.size_bytes,
-            "url": f"/api/v1/uploads/{att.id}"}
+            "url": f"/v1/uploads/{att.id}"}
+
+
+def _optional_user_id(request: Request) -> UUID | None:
+    """Best-effort identify the caller from a Bearer header or ?token= query param.
+
+    Used only to authorize reads of PRIVATE (not-yet-posted) files. Returns None
+    if absent/invalid — callers then treat the request as anonymous.
+    """
+    raw = request.headers.get("authorization", "")
+    token = raw[7:].strip() if raw.lower().startswith("bearer ") else request.query_params.get("token")
+    if not token:
+        return None
+    try:
+        return UUID(verify_access_token(token)["sub"])
+    except Exception:
+        return None
 
 
 @router.get("/{attachment_id}")
-async def download(attachment_id: UUID,
-                   subject: Subject = Depends(current_subject),
-                   session: AsyncSession = Depends(db)):
+async def download(attachment_id: UUID, request: Request):
+    """Serve a file.
+
+    - Attached to a feed post → public (the feed is a public surface), so plain
+      <img src> works without an auth header.
+    - Not yet attached (private draft) → only the owner may read it.
+    """
     from app.models import Attachment
-    att = await session.get(Attachment, attachment_id)
-    if att is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "not found")
-    # Readable if you own it, or it's attached to a (public) feed post.
-    if att.owner_user_id != subject.user_id and att.post_id is None:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "not yours")
-    path = UPLOAD_DIR / att.storage_key
-    if not path.exists():
-        raise HTTPException(status.HTTP_410_GONE, "file purged")
-    return FileResponse(path, media_type=att.content_type, filename=att.original_name)
+    async with tenant_session(None) as session:
+        att = await session.get(Attachment, attachment_id)
+        if att is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "not found")
+        if att.post_id is None:
+            uid = _optional_user_id(request)
+            if uid is None or uid != att.owner_user_id:
+                raise HTTPException(status.HTTP_403_FORBIDDEN, "not yours")
+        path = UPLOAD_DIR / att.storage_key
+        if not path.exists():
+            raise HTTPException(status.HTTP_410_GONE, "file purged")
+        return FileResponse(path, media_type=att.content_type, filename=att.original_name)
 
 
 @router.delete("/{attachment_id}", status_code=status.HTTP_204_NO_CONTENT)

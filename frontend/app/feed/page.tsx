@@ -2,13 +2,17 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Send, Sparkles, TrendingUp, Users } from "lucide-react";
+import { Paperclip, Send, Sparkles, TrendingUp, Users, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { AdSlot } from "@/components/AdSlot";
 import { categoryAccent } from "@/lib/category";
 import { api, ApiError } from "@/lib/api";
 import type { Post } from "@/lib/types";
 
+const MAX_FILES = 4;
+
 const CATEGORIES = ["general", "markets", "career", "economy", "growth", "ai"];
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 
 function timeAgo(iso?: string): string {
   if (!iso) return "just now";
@@ -30,6 +34,8 @@ export default function FeedPage() {
   const [body, setBody] = useState("");
   const [category, setCategory] = useState("markets");
   const [posting, setPosting] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -45,16 +51,33 @@ export default function FeedPage() {
     load();
   }, [load]);
 
+  function pickFiles(list: FileList | null) {
+    if (!list) return;
+    setUploadError(null);
+    setFiles((prev) => [...prev, ...Array.from(list)].slice(0, MAX_FILES));
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
     setPosting(true);
+    setUploadError(null);
     try {
-      const created = await api.createPost(title.trim(), body.trim(), category);
+      // Upload any picked files first (explicit consent — never reads the device),
+      // then publish the post with the returned attachment ids.
+      let attachmentIds: string[] = [];
+      if (files.length) {
+        const uploaded = await Promise.all(files.map((f) => api.uploadFile(f)));
+        attachmentIds = uploaded.map((u) => u.id);
+      }
+      const created = await api.createPost(title.trim(), body.trim(), category, undefined, attachmentIds);
       setPosts((prev) => [created, ...prev]);
       setTitle("");
       setBody("");
+      setFiles([]);
       setOpen(false);
+    } catch (err) {
+      setUploadError(err instanceof ApiError ? err.message : "Could not publish your post.");
     } finally {
       setPosting(false);
     }
@@ -118,13 +141,52 @@ export default function FeedPage() {
             onChange={(e) => setBody(e.target.value)}
             placeholder="The thesis, the evidence, and what you'd do about it…"
           />
-          <div className="flex justify-end">
+
+          {files.length > 0 && (
+            <div className="flex flex-wrap gap-sm">
+              {files.map((f, i) => (
+                <span
+                  key={`${f.name}-${i}`}
+                  className="inline-flex items-center gap-1.5 rounded-sm bg-canvas-soft px-md py-1 text-[13px] text-body"
+                >
+                  <Paperclip className="h-3.5 w-3.5 text-mute" />
+                  <span className="max-w-[160px] truncate">{f.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
+                    className="text-mute hover:text-ink"
+                    aria-label="Remove attachment"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          {uploadError && <p className="text-[13px] text-signal-red">{uploadError}</p>}
+
+          <div className="flex items-center justify-between">
+            <label className="btn-ghost btn-sm cursor-pointer">
+              <Paperclip className="h-4 w-4" /> Attach
+              <input
+                type="file"
+                multiple
+                hidden
+                accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/csv,text/plain"
+                onChange={(e) => {
+                  pickFiles(e.currentTarget.files);
+                  e.currentTarget.value = "";
+                }}
+              />
+            </label>
             <button type="submit" disabled={posting} className="btn-primary">
               <Send className="h-4 w-4" /> {posting ? "Posting…" : "Publish"}
             </button>
           </div>
         </form>
       )}
+
+      <AdSlot className="mb-lg" />
 
       {loading ? (
         <div className="space-y-md">
@@ -159,6 +221,31 @@ export default function FeedPage() {
                 </div>
                 <h3 className="text-[18px] font-medium tracking-[-0.2px] text-ink">{p.title}</h3>
                 <p className="mt-1.5 whitespace-pre-wrap text-[15px] leading-relaxed text-body">{p.body}</p>
+                {p.attachments && p.attachments.length > 0 && (
+                  <div className="mt-md flex flex-wrap gap-sm">
+                    {p.attachments.map((a) =>
+                      a.content_type.startsWith("image/") ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={a.id}
+                          src={`${API_BASE}${a.url}`}
+                          alt="attachment"
+                          className="h-28 w-28 rounded-sm border border-hairline object-cover"
+                        />
+                      ) : (
+                        <a
+                          key={a.id}
+                          href={`${API_BASE}${a.url}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-sm bg-canvas-soft px-md py-1.5 text-[13px] text-body hover:text-ink"
+                        >
+                          <Paperclip className="h-3.5 w-3.5 text-mute" /> Attachment
+                        </a>
+                      ),
+                    )}
+                  </div>
+                )}
                 <div className="mt-md flex items-center gap-md border-t border-hairline-soft pt-md">
                   <button
                     onClick={() => react(p.id)}

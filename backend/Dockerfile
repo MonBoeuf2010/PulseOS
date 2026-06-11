@@ -11,10 +11,15 @@ RUN pip install --upgrade pip && pip install -e .
 
 COPY . .
 
-# Non-root runtime user (security baseline)
-RUN useradd -m -u 10001 appuser && chown -R appuser /app
+# Non-root runtime user (security baseline). Pre-create the uploads dir so a
+# mounted named volume inherits appuser ownership and stays writable.
+RUN useradd -m -u 10001 appuser \
+    && mkdir -p /data/uploads \
+    && chown -R appuser /app /data/uploads
 USER appuser
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:8000/health || exit 1
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# In prod the schema is owned by Alembic — apply migrations, then serve.
+# (--proxy-headers: trust X-Forwarded-* from the Caddy TLS terminator in front.)
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"]

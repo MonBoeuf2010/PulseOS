@@ -66,7 +66,14 @@ stripe.api_key = settings.stripe_secret_key
 
 
 class CheckoutIn(BaseModel):
-    plan: str = "monthly"  # "monthly" | "yearly"
+    plan: str = "monthly"  # "basic" | "monthly" (Pro) | "yearly" (Pro)
+
+
+_PRICE_BY_PLAN = {
+    "basic": "stripe_price_basic",
+    "monthly": "stripe_price_monthly",
+    "yearly": "stripe_price_yearly",
+}
 
 
 @router.post("/checkout")
@@ -75,16 +82,17 @@ async def create_checkout(body: CheckoutIn,
                           session: AsyncSession = Depends(db)):
     if not settings.stripe_secret_key:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "billing not configured")
-    price = (settings.stripe_price_yearly if body.plan == "yearly"
-             else settings.stripe_price_monthly)
+    price = getattr(settings, _PRICE_BY_PLAN.get(body.plan, ""), "")
     if not price:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "unknown plan")
 
     checkout = stripe.checkout.Session.create(
         mode="subscription",
         line_items=[{"price": price, "quantity": 1}],
-        # client_reference_id is how the webhook maps payment → your user.
+        # client_reference_id is how the webhook maps payment → your user;
+        # plan rides through metadata so the webhook can persist it.
         client_reference_id=str(subject.user_id),
+        metadata={"plan": body.plan},
         success_url=f"{settings.frontend_base_url}/dashboard?upgraded=1",
         cancel_url=f"{settings.frontend_base_url}/pricing?canceled=1",
         allow_promotion_codes=True,
@@ -107,6 +115,11 @@ async def customer_portal(subject: Subject = Depends(current_subject),
     return {"portal_url": portal.url}
 
 
+# Pro (ad-free) plans. "basic" is a paid but ad-supported tier; everyone not on
+# an active Pro plan sees ads (the ad-revenue gate the frontend reads).
+PRO_PLANS = {"monthly", "yearly"}
+
+
 @router.get("/status")
 async def my_status(subject: Subject = Depends(current_subject),
                     session: AsyncSession = Depends(db)):
@@ -114,8 +127,11 @@ async def my_status(subject: Subject = Depends(current_subject),
     sub = (await session.execute(select(Subscription).where(
         Subscription.user_id == subject.user_id))).scalar_one_or_none()
     active = bool(sub and sub.status == "active")
-    return {"premium": active, "plan": sub.plan if sub else "free",
-            "status": sub.status if sub else "inactive"}
+    plan = sub.plan if sub else "free"
+    pro = active and plan in PRO_PLANS
+    return {"premium": active, "plan": plan,
+            "status": sub.status if sub else "inactive",
+            "pro": pro, "ads": not pro}  # ads shown to free + basic tiers
 
 
 @router.post("/webhook")
@@ -147,10 +163,11 @@ async def webhook(request: Request, session: AsyncSession = Depends(db),
 
     if event["type"] == "checkout.session.completed":
         user_id = _UUID(obj["client_reference_id"])
+        plan = (obj.get("metadata") or {}).get("plan", "monthly")
         await _upsert(user_id,
                       stripe_customer_id=obj["customer"],
                       stripe_subscription_id=obj.get("subscription"),
-                      status="active", plan="monthly")
+                      status="active", plan=plan)
 
     elif event["type"] in ("customer.subscription.updated",
                            "customer.subscription.deleted"):

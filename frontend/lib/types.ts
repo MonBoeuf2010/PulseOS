@@ -119,6 +119,12 @@ export interface ConversationDetail {
   messages: ChatMessage[];
 }
 
+export interface Attachment {
+  id: string;
+  content_type: string;
+  url: string;
+}
+
 export interface Post {
   id: string;
   author_name: string;
@@ -129,4 +135,23 @@ export interface Post {
   reaction_count: number;
   reacted: boolean;
   created_at?: string;
+  attachments?: Attachment[];
 }
+
+export interface UploadedFile {
+  id: string;
+  content_type: string;
+  original_name: string;
+  size_bytes: number;
+  url: string;
+}
+
+export interface BillingStatus {
+  premium: boolean;
+  plan: string;   // free | basic | monthly | yearly
+  status: string; // active | inactive | past_due | canceled
+  pro: boolean;   // ad-free Pro tier
+  ads: boolean;   // whether to show ads (free + basic)
+}
+
+export type CheckoutPlan = "basic" | "monthly" | "yearly";

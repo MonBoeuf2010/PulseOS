@@ -1,0 +1,94 @@
+# PulseOS production stack — single VPS, one command:
+#   API_DOMAIN=api.yourdomain.com docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#
+# Caddy terminates TLS (auto Let's Encrypt) and proxies to the API. The API runs
+# Alembic migrations on boot. Web frontend deploys separately to Vercel (easiest)
+# and points NEXT_PUBLIC_API_BASE at https://$API_DOMAIN. OpenSearch is omitted —
+# search falls back to Postgres lexical at launch scale (roadmap Step 6).
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pulse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pulse}
+      POSTGRES_DB: pulseos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse -d pulseos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redisdata:/data"]
+
+  rabbitmq:
+    image: rabbitmq:3-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: pulse
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-pulse}
+
+  api:
+    build: ../backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ENV: production
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+    volumes:
+      - uploads:/data/uploads
+    expose: ["8000"]
+
+  worker:
+    build: ../backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ENV: production
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+    volumes:
+      - uploads:/data/uploads
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info"]
+
+  beat:
+    build: ../backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ENV: production
+    depends_on:
+      - rabbitmq
+    command: ["celery", "-A", "app.workers.celery_app", "beat", "--loglevel=info"]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  caddy_data:
+  caddy_config:

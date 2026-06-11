@@ -24,6 +24,7 @@ dependencies = [
     "anthropic>=0.40",
     "stripe>=9.0",
     "feedparser>=6.0",
+    "slowapi>=0.1.9",
     "structlog>=24.1",
     "opentelemetry-sdk>=1.25",
     "prometheus-client>=0.20",
