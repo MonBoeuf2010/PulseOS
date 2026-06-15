@@ -59,7 +59,7 @@ export default function MemoryPage() {
         <div className="eyebrow mb-1">Transparent by design</div>
         <h1 className="text-[32px] font-semibold tracking-[-0.6px] text-ink">AI Memory</h1>
         <p className="mt-1 text-[15px] text-body-mid">
-          Everything PulseOS remembers about you — fully visible and editable.
+          Everything LifeIQ remembers about you — fully visible and editable.
         </p>
       </header>
 

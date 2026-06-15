@@ -37,14 +37,21 @@ class BriefingService:
         return _briefing_to_dict(briefing)
 
     async def enqueue_generate(self, subject: Subject) -> str:
-        from app.workers.tasks import build_briefing
+        from app.core.config import get_settings
         job_id = str(uuid4())
-        # .delay() requires a broker; in dev without one, fall back to inline build.
-        try:
-            build_briefing.delay(str(subject.tenant_id), str(subject.user_id), job_id)
-        except Exception:
-            from app.workers.tasks import build_briefing_sync
-            await build_briefing_sync(subject.tenant_id, subject.user_id, job_id)
+        # With no background worker (default on free/single-box hosting), build the
+        # briefing inline in the request. Only hand off to Celery when a worker is
+        # actually deployed — otherwise .delay() would silently enqueue a job that
+        # nothing ever consumes and the briefing would never appear.
+        if get_settings().enable_background_jobs:
+            from app.workers.tasks import build_briefing
+            try:
+                build_briefing.delay(str(subject.tenant_id), str(subject.user_id), job_id)
+                return job_id
+            except Exception:
+                pass  # broker unreachable → fall through to inline build
+        from app.workers.tasks import build_briefing_sync
+        await build_briefing_sync(subject.tenant_id, subject.user_id, job_id)
         return job_id
 
     async def record_feedback(self, subject: Subject, item_id: UUID, verdict: str,

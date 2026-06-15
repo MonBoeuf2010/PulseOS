@@ -17,7 +17,23 @@ from sqlalchemy.orm import DeclarativeBase
 from app.core.config import get_settings
 
 settings = get_settings()
-engine = create_async_engine(settings.database_url, pool_pre_ping=True, pool_size=20, max_overflow=10)
+
+
+def asyncpg_connect_args(url: str) -> dict:
+    """Driver connect args. For asyncpg, disable prepared-statement caching (both
+    SQLAlchemy's adapt-layer cache and asyncpg's native one) so the same
+    DATABASE_URL works through a transaction pooler (Neon/Supabase use PgBouncer)
+    without "prepared statement does not exist" errors. No-op for any other
+    driver, so local dev and tests are unaffected."""
+    if "+asyncpg" in url:
+        return {"prepared_statement_cache_size": 0, "statement_cache_size": 0}
+    return {}
+
+
+engine = create_async_engine(
+    settings.database_url, pool_pre_ping=True, pool_size=20, max_overflow=10,
+    connect_args=asyncpg_connect_args(settings.database_url),
+)
 SessionMaker = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 

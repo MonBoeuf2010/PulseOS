@@ -1,6 +1,6 @@
 # 10 — Security & Compliance Plan
 
-> Security is not a feature of PulseOS; for the enterprise segment it **is** the product (`03` P5). A single tenant-crossover or meeting leak is company-ending. This plan is written to pass a hostile CISO review.
+> Security is not a feature of LifeIQ; for the enterprise segment it **is** the product (`03` P5). A single tenant-crossover or meeting leak is company-ending. This plan is written to pass a hostile CISO review.
 
 ## 1. Threat model (who attacks us, and why)
 

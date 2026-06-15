@@ -1,4 +1,4 @@
--- PulseOS — OPTIONAL Postgres Row-Level Security (roadmap Step 5.2, defense-in-depth).
+-- LifeIQ — OPTIONAL Postgres Row-Level Security (roadmap Step 5.2, defense-in-depth).
 --
 -- The app ALREADY enforces tenant isolation at the repository layer (every
 -- tenant-scoped query filters by tenant_id, set per-transaction via

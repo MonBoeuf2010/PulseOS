@@ -37,7 +37,7 @@ from app.core.security import Subject, verify_access_token
 
 router = APIRouter()
 
-UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "/tmp/pulseos-uploads"))
+UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "/tmp/lifeiq-uploads"))
 MAX_BYTES = 10 * 1024 * 1024  # 10 MB
 ALLOWED_TYPES = {
     "image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp",

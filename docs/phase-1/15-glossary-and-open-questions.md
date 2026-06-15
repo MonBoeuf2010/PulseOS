@@ -14,7 +14,7 @@
 - **Shared public-signal compute** — analysis of public events computed once and reused across users; the key AI-cost lever (sub-linear scaling).
 - **Single-player vs. multiplayer** — features valuable with zero other users (briefing, opportunities) vs. those needing a populated network (community, corporate, reputation).
 - **Gate** — hard exit criteria a release must pass before the next ecosystem begins.
-- **Regulated-advice bright line** — the policy that PulseOS gives information, not directive securities/medical/legal advice.
+- **Regulated-advice bright line** — the policy that LifeIQ gives information, not directive securities/medical/legal advice.
 - **Tag conventions** — `[measured]` (from real data), `[modeled]` (from stated assumptions), `[aspirational]` (a target not yet earned).
 
 ## Open questions (must be resolved in/just after Phase 1)

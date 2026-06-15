@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { clearSession, getSession } from "@/lib/auth";
+import { initRevenueCat } from "@/lib/revenuecat";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -32,8 +33,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!getSession()) router.replace("/login");
-    else setReady(true);
+    const session = getSession();
+    if (!session) {
+      router.replace("/login");
+    } else {
+      setReady(true);
+      // Bind native In-App Purchases to this user (no-op on web). The RevenueCat
+      // App User ID = our backend UUID, so purchases land on the right account.
+      void initRevenueCat(session.userId);
+    }
   }, [router]);
 
   function logout() {
@@ -56,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary">
             <Activity className="h-4 w-4 text-on-primary" />
           </div>
-          <span className="text-[20px] font-semibold tracking-[-0.4px] text-ink">PulseOS</span>
+          <span className="text-[20px] font-semibold tracking-[-0.4px] text-ink">LifeIQ</span>
         </Link>
         <nav className="flex flex-1 flex-col gap-xxs">
           {NAV.map(({ href, label, icon: Icon }) => {

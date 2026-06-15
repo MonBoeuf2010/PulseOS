@@ -1,0 +1,44 @@
+# =============================================================================
+# LifeIQ — backend on Render's free web service (FOREVER-FREE, no domain)
+# =============================================================================
+# This deploys ONLY the API (free). The database lives on Neon (also free,
+# forever — Render's own Postgres expires after 30 days, Neon's does not).
+# No Redis, no RabbitMQ, no worker — the API runs completely standalone.
+#
+# You paste exactly TWO secrets when Render asks:
+#   1. DATABASE_URL     — the connection string you copy from Neon (Step in guide)
+#   2. ANTHROPIC_API_KEY — your sk-ant-... key
+#
+# Result: a free HTTPS URL like https://pulseos-api.onrender.com — NOT a domain
+# you buy. The iOS app (which bundles the web UI) already points at that URL.
+#
+# See LAUNCH-NODOMAIN.md for the full click-by-click walkthrough.
+# =============================================================================
+
+services:
+  - type: web
+    name: pulseos-api
+    runtime: docker
+    plan: free                       # free forever; sleeps after ~15 min idle, wakes in ~30s
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    # Bind to Render's injected $PORT (not the Dockerfile's hard-coded 8000).
+    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"
+    envVars:
+      - key: ENV
+        value: production
+      - key: SECRET_KEY              # signs login tokens. Generated once, then stable.
+        generateValue: true
+      - key: DATABASE_URL            # ← paste your Neon connection string (config.py adapts it)
+        sync: false
+      - key: ANTHROPIC_API_KEY       # ← paste your sk-ant-... key (powers the AI)
+        sync: false
+      - key: ENABLE_BACKGROUND_JOBS  # no worker on free tier; everything runs in-request
+        value: "false"
+      # CORS: the Capacitor iOS WebView's origin is capacitor://localhost. Web dev
+      # uses localhost:3000. Must be a JSON array (pydantic parses list[str] from JSON).
+      - key: CORS_ORIGINS
+        value: '["capacitor://localhost","https://localhost","http://localhost:3000"]'
+      - key: FRONTEND_BASE_URL
+        value: capacitor://localhost

@@ -4,7 +4,7 @@ Usage (with the datastores up — see infra/docker-compose.yml):
     python -m scripts.seed
 Idempotent on the demo email: re-running reuses the existing user/tenant.
 
-Demo login:  demo@pulseos.com / pulsedemo123
+Demo login:  demo@lifeiq.com / pulsedemo123
 """
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from app.repositories.opportunities import OpportunityRepository
 from app.repositories.users import UserRepository
 from app.workers.tasks import build_briefing_sync
 
-DEMO_EMAIL = "demo@pulseos.com"
+DEMO_EMAIL = "demo@lifeiq.com"
 DEMO_PASSWORD = "pulsedemo123"
 
 SEED_SIGNALS = [

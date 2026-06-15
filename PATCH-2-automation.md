@@ -122,6 +122,6 @@ def pull_rss() -> list[dict]:
 
 Schedule it hourly in `celery_app.py` beat_schedule with a task that calls
 `enrich_signal_sync(raw)` per item (dedupe on external_id already exists).
-This single change is what flips PulseOS from "demo data" to "live
+This single change is what flips LifeIQ from "demo data" to "live
 intelligence" — everything downstream (council → briefing → feed) already
 consumes Signals automatically.

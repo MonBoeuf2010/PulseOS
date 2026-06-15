@@ -67,4 +67,4 @@ async def logout(response: Response, request: Request, body: RefreshIn | None = 
 @router.post("/passkey/login/options")
 async def passkey_options():
     # SCAFFOLD: WebAuthn assertion challenge (R2 — webauthn dep already declared).
-    return {"challenge": "...", "rpId": "pulseos.com"}
+    return {"challenge": "...", "rpId": "lifeiq.com"}

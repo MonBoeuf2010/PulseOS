@@ -3,7 +3,7 @@ import Script from "next/script";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "PulseOS — Real-Time Intelligence",
+  title: "LifeIQ — Real-Time Intelligence",
   description:
     "Continuously converts global, corporate, and personal signals into the highest-value action you should take right now.",
 };

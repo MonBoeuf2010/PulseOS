@@ -30,7 +30,7 @@ Council report / briefing item has a **share** affordance → recipient sees a b
 Weekly "you saved $X / Yh, caught N opportunities" → reinforces habit → paywalled depth ("see full council / unlock another domain") → Pro upgrade → funds better AI → more value. Self-reinforcing.
 
 ### Loop C — The contributor reputation loop (R2, network supply)
-Contributors gain portable **reputation + reach** for being right → attracts more contributors → richer intelligence → more readers → higher reputation stakes. Reputation is only valuable inside PulseOS → lock-in.
+Contributors gain portable **reputation + reach** for being right → attracts more contributors → richer intelligence → more readers → higher reputation stakes. Reputation is only valuable inside LifeIQ → lock-in.
 
 ### Loop D — Follow/stream loop
 Following companies/teams/topics creates a personalized stream → daily reason to return → more follows.

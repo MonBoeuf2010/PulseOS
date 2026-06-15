@@ -12,7 +12,7 @@ How money flows (the whole picture in 5 steps):
 5. Any premium endpoint adds `Depends(require_premium)` and is instantly gated.
 
 Setup checklist (why each step):
-- Stripe Dashboard → Products → create "PulseOS Pro" with a monthly and/or
+- Stripe Dashboard → Products → create "LifeIQ Pro" with a monthly and/or
   yearly recurring Price. Copy the price IDs into env (PRICE_* below).
 - Developers → API keys → secret key → STRIPE_SECRET_KEY env.
 - Developers → Webhooks → add endpoint https://yourdomain/api/v1/billing/webhook

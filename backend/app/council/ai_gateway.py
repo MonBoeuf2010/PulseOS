@@ -51,7 +51,7 @@ def _stub_completion(system: str, prompt: str) -> str:
     returns a conversational reply; council mode returns the structured JSON the
     prompts in council/prompts.py instruct the models to produce.
     """
-    if "PULSEOS CHAT" in system.upper():
+    if "LIFEIQ CHAT" in system.upper():
         q = _last_user_turn(prompt)
         return (
             f"Here's my read on “{q}”.\n\n"

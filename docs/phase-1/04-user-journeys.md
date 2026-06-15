@@ -1,6 +1,6 @@
 # 04 — User Journeys
 
-Journeys are written as step → system behavior → success criterion. The **first-run journey** is the most important asset PulseOS has: if Maya doesn't get a concrete, credible action in <60s, nothing else matters.
+Journeys are written as step → system behavior → success criterion. The **first-run journey** is the most important asset LifeIQ has: if Maya doesn't get a concrete, credible action in <60s, nothing else matters.
 
 ---
 

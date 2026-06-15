@@ -183,7 +183,7 @@ class Feedback(Base):
 
 
 class Conversation(Base):
-    """An AI-chat thread between a user and the PulseOS intelligence analyst."""
+    """An AI-chat thread between a user and the LifeIQ intelligence analyst."""
     __tablename__ = "conversations"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)

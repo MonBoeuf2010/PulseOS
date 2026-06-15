@@ -7,7 +7,7 @@ ASCII wireframes + behavior notes. Desktop layout shown; mobile adaptation noted
 ## Onboarding (first-run, the time-to-value screen)
 ```
 ┌──────────────────────────────────────────────┐
-│           PulseOS · Let's tune your intel      │
+│           LifeIQ · Let's tune your intel      │
 │                                                │
 │   What's your role?     [ Operator ▼ ]         │
 │   Your top goals        [ + grow revenue   ]   │
@@ -181,7 +181,7 @@ Typed, grouped results across all entities; keyboard-only; <100ms target.
 │ ┌ goal · "grow ARR to $1M"            [edit][delete] ┐            │
 │ ┌ profession · "SaaS founder"          [edit][delete] ┐           │
 │ ┌ preference · "concise, data-first"   [edit][delete] ┐           │
-│ [+ add memory]   "This is everything PulseOS remembers about you" │
+│ [+ add memory]   "This is everything LifeIQ remembers about you" │
 │ PRIVACY:  [Export my data] [Delete my account]  (GDPR)            │
 └────────────────────────────────────────────────────────────────────┘
 ```
