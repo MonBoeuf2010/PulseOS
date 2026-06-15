@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_subject, db
 from app.api.v1.uploads import link_attachments_to_post
+from app.core.config import get_settings
 from app.core.security import Subject
 from app.models import User
 from app.repositories.posts import PostRepository
@@ -49,12 +50,14 @@ async def create(body: PostIn, subject: Subject = Depends(current_subject),
         attachment_ids=body.attachment_ids)
     attachments = (await repo.attachments_for([post.id])).get(post.id, [])
 
-    # Best-effort AI moderation; in dev (no broker) the post stays up.
-    try:
-        from app.workers.tasks import moderate_post
-        moderate_post.delay(str(post.id))
-    except Exception:
-        pass
+    # Best-effort AI moderation via the worker; skipped when no background worker
+    # is deployed (the post stays up either way).
+    if get_settings().enable_background_jobs:
+        try:
+            from app.workers.tasks import moderate_post
+            moderate_post.delay(str(post.id))
+        except Exception:
+            pass
 
     return _to_out(post, reacted=False, attachments=attachments)
 

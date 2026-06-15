@@ -1,7 +1,7 @@
 # Phase 2.4 — Event-Driven Architecture
 
 ## Why event-driven
-PulseOS is *continuous*, not request/response. Ingestion, enrichment, council analysis, briefing generation, fan-out distribution, and analytics are all asynchronous reactions to events. The event backbone decouples producers from consumers and is the substrate for horizontal scaling.
+LifeIQ is *continuous*, not request/response. Ingestion, enrichment, council analysis, briefing generation, fan-out distribution, and analytics are all asynchronous reactions to events. The event backbone decouples producers from consumers and is the substrate for horizontal scaling.
 
 ## Backbone choice (now vs. later)
 - **MVP–R2:** **Celery + Redis broker** for task queues + a lightweight **outbox → fan-out** pattern in Postgres for domain events. Simple, low-ops.

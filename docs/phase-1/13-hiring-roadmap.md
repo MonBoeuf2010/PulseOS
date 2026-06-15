@@ -1,6 +1,6 @@
 # 13 — Hiring Roadmap
 
-Principle: **stay small and senior until the wedge is proven.** PulseOS's hardest early problems (AI orchestration, calibration, tenancy isolation, time-to-value) are senior-generalist problems, not headcount problems. Over-hiring before product-market fit is a top startup killer (see `14` R-9).
+Principle: **stay small and senior until the wedge is proven.** LifeIQ's hardest early problems (AI orchestration, calibration, tenancy isolation, time-to-value) are senior-generalist problems, not headcount problems. Over-hiring before product-market fit is a top startup killer (see `14` R-9).
 
 ## Org philosophy
 - Founders + a tiny team of senior, full-stack-minded builders through MVP.

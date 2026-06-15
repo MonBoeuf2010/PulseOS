@@ -1,0 +1,77 @@
+# =============================================================================
+# LifeIQ — one-click Render deploy (NO domain required, free tier)
+# =============================================================================
+# This Blueprint stands up the whole backend on Render's free tier and gives you
+# a real HTTPS URL like https://pulseos-api.onrender.com — a free subdomain, not
+# a domain you buy. The iOS app (which bundles the web UI) points at that URL.
+#
+# HOW TO USE
+#   1. Push this repo to GitHub (already done).
+#   2. Render dashboard → New → Blueprint → pick this repo → Apply.
+#   3. When prompted, paste your ANTHROPIC_API_KEY (the only secret).
+#   4. Wait for the build; open https://<your-service>.onrender.com/health → {"status":"ok"}.
+#
+# NOTES
+#   • Free web services sleep after ~15 min idle and cold-start in ~30s. Fine for
+#     testing/launch. To remove the sleep, change `plan: free` → `plan: starter`.
+#   • Free Postgres is free for 30 days, then needs a paid plan ($7/mo) or swap in
+#     a free non-expiring Postgres (Neon/Supabase) by setting DATABASE_URL by hand.
+#   • Background jobs (scheduled briefings, RSS ingest, async moderation) are OFF —
+#     they need an always-on worker (paid). Everything user-facing (login,
+#     dashboard, on-demand briefings, AI chat, council, feed) works without them.
+# =============================================================================
+
+databases:
+  - name: pulseos-db
+    databaseName: lifeiq
+    user: pulse
+    plan: free
+    postgresMajorVersion: "16"
+    # pgvector is created by the Alembic migration on first boot
+    # (CREATE EXTENSION IF NOT EXISTS vector).
+
+services:
+  # ---- Redis (Render now calls this "Key Value"). If `type: redis` is rejected
+  #      by your dashboard, change it to `type: keyvalue` — everything else is identical.
+  - type: redis
+    name: pulseos-redis
+    plan: free
+    ipAllowList: []                 # only reachable from inside Render's network
+    maxmemoryPolicy: noeviction
+
+  # ---- The API (FastAPI in Docker). Migrations run on boot, then uvicorn serves.
+  - type: web
+    name: pulseos-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    # Bind to Render's injected $PORT (not the Dockerfile's hard-coded 8000).
+    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"
+    envVars:
+      - key: ENV
+        value: production
+      - key: SECRET_KEY              # signs JWTs (HS256). Generated once, then stable.
+        generateValue: true
+      - key: DATABASE_URL            # config.py rewrites postgres:// → postgresql+asyncpg://
+        fromDatabase:
+          name: pulseos-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: pulseos-redis
+          type: redis                # match the redis service type above
+          property: connectionString
+      - key: RABBITMQ_URL            # empty → Celery (if ever enabled) uses Redis as broker
+        value: ""
+      - key: ENABLE_BACKGROUND_JOBS  # keep false on free tier (no worker dyno)
+        value: "false"
+      - key: ANTHROPIC_API_KEY       # ← you paste this in the dashboard (sync:false = secret)
+        sync: false
+      # CORS: the Capacitor iOS WebView's origin is capacitor://localhost. Web dev
+      # uses localhost:3000. Must be a JSON array (pydantic parses list[str] from JSON).
+      - key: CORS_ORIGINS
+        value: '["capacitor://localhost","https://localhost","http://localhost:3000"]'
+      - key: FRONTEND_BASE_URL
+        value: capacitor://localhost

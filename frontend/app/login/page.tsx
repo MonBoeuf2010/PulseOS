@@ -9,7 +9,7 @@ import { api, ApiError } from "@/lib/api";
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("demo@pulseos.com");
+  const [email, setEmail] = useState("demo@lifeiq.com");
   const [password, setPassword] = useState("pulsedemo123");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function LoginPage() {
           <div className="mb-md grid h-12 w-12 place-items-center rounded-md bg-primary">
             <Activity className="h-6 w-6 text-on-primary" />
           </div>
-          <h1 className="text-[24px] font-semibold tracking-[-0.5px] text-ink">PulseOS</h1>
+          <h1 className="text-[24px] font-semibold tracking-[-0.5px] text-ink">LifeIQ</h1>
           <p className="mt-1 text-[14px] text-body-mid">
             {mode === "login" ? "Welcome back." : "Create your intelligence workspace."}
           </p>

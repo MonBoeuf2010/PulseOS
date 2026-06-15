@@ -1,6 +1,6 @@
 # 07 — AI Strategy
 
-This is the heart of PulseOS's defensibility *and* its biggest cost/quality/latency risk. The strategy below is built around one principle: **be model-agnostic, own the orchestration + evaluation + outcome data.** Models are rented; the trust layer and the data are owned.
+This is the heart of LifeIQ's defensibility *and* its biggest cost/quality/latency risk. The strategy below is built around one principle: **be model-agnostic, own the orchestration + evaluation + outcome data.** Models are rented; the trust layer and the data are owned.
 
 ---
 

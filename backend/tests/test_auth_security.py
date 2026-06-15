@@ -20,7 +20,7 @@ def test_access_token_roundtrip():
                              amr=["pwd"], session_id=sid)
     claims = verify_access_token(tok)
     assert claims["sub"] == str(uid) and claims["tid"] == str(tid)
-    assert claims["roles"] == ["owner"] and claims["iss"] == "pulseos"
+    assert claims["roles"] == ["owner"] and claims["iss"] == "lifeiq"
 
 
 def test_rbac_wildcards():

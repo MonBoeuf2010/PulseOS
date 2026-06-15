@@ -27,7 +27,7 @@ const FEATURES = [
   { icon: MessagesSquare, title: "AI Analyst, on call", body: "Chat with an analyst that knows your goals and signals. Ask anything; get a specific, quantified, action-first answer." },
   { icon: Radar, title: "Opportunity Engine", body: "Time-sensitive, asymmetric upside surfaced automatically and tracked until you act." },
   { icon: Users, title: "Operator Community", body: "Publish your calls, react to others', and see what sharp operators are acting on right now." },
-  { icon: Brain, title: "Transparent Memory", body: "Everything PulseOS knows about you is visible and editable. No black box." },
+  { icon: Brain, title: "Transparent Memory", body: "Everything LifeIQ knows about you is visible and editable. No black box." },
   { icon: Activity, title: "Strategic Council", body: "Seven AI specialists debate the high-stakes calls, then synthesize — preserving the disagreement." },
 ];
 
@@ -56,7 +56,7 @@ export default function Home() {
           <div className="grid h-8 w-8 place-items-center rounded-md bg-primary">
             <Activity className="h-4 w-4 text-on-primary" />
           </div>
-          <span className="text-[20px] font-semibold tracking-[-0.4px] text-ink">PulseOS</span>
+          <span className="text-[20px] font-semibold tracking-[-0.4px] text-ink">LifeIQ</span>
         </div>
         <div className="flex items-center gap-sm">
           <Link href="/login" className="btn-ghost btn-sm">
@@ -79,7 +79,7 @@ export default function Home() {
           <br className="hidden md:block" /> you should take right now.
         </h1>
         <p className="mx-auto mt-lg max-w-xl text-[18px] leading-relaxed text-body-mid md:text-[20px]">
-          PulseOS turns global, market, and personal signals into a daily briefing of ranked,
+          LifeIQ turns global, market, and personal signals into a daily briefing of ranked,
           evidence-backed moves — and an AI analyst that helps you act on them.
         </p>
         <div className="mt-2xl flex items-center justify-center gap-md">
@@ -111,7 +111,7 @@ export default function Home() {
       {/* Features */}
       <section className="mx-auto max-w-[1180px] px-lg py-3xl md:px-2xl">
         <div className="mb-2xl max-w-2xl">
-          <div className="eyebrow mb-sm">Why operators run on PulseOS</div>
+          <div className="eyebrow mb-sm">Why operators run on LifeIQ</div>
           <h2 className="text-[32px] font-medium tracking-[-0.5px] text-ink md:text-[40px]">
             An intelligence team, compressed into one screen.
           </h2>
@@ -192,7 +192,7 @@ export default function Home() {
       </section>
 
       <footer className="mx-auto max-w-[1180px] px-lg py-2xl text-[13px] text-mute md:px-2xl">
-        © PulseOS — Real-Time Intelligence Operating System.
+        © LifeIQ — Real-Time Intelligence Operating System.
       </footer>
     </div>
   );

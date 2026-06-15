@@ -1,4 +1,4 @@
-# PulseOS production stack — single VPS, one command:
+# LifeIQ production stack — single VPS, one command:
 #   API_DOMAIN=api.yourdomain.com docker compose -f docker-compose.prod.yml --env-file .env up -d --build
 #
 # Caddy terminates TLS (auto Let's Encrypt) and proxies to the API. The API runs
@@ -12,11 +12,11 @@ services:
     environment:
       POSTGRES_USER: pulse
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pulse}
-      POSTGRES_DB: pulseos
+      POSTGRES_DB: lifeiq
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pulse -d pulseos"]
+      test: ["CMD-SHELL", "pg_isready -U pulse -d lifeiq"]
       interval: 5s
       timeout: 5s
       retries: 10

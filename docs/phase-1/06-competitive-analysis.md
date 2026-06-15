@@ -2,7 +2,7 @@
 
 ## How to think about competition here
 
-PulseOS doesn't have one competitor — it has a competitor *per ecosystem*, plus the most dangerous one of all: **the user's existing habit** (scattered apps + gut feel + "I'll just google it"). The strategic question is not "are we better than X?" but "is the synthesized, action-ranked, trust-scored layer valuable enough that people change behavior?"
+LifeIQ doesn't have one competitor — it has a competitor *per ecosystem*, plus the most dangerous one of all: **the user's existing habit** (scattered apps + gut feel + "I'll just google it"). The strategic question is not "are we better than X?" but "is the synthesized, action-ranked, trust-scored layer valuable enough that people change behavior?"
 
 ## Competitive landscape by job
 
@@ -24,8 +24,8 @@ PulseOS doesn't have one competitor — it has a competitor *per ecosystem*, plu
 
 ## Moats (in order of durability)
 
-1. **Proprietary intelligence graph + outcome data [strongest, slow to build].** As users act and outcomes are observed, PulseOS accumulates a labeled dataset of *which recommendations actually paid off for which user types*. This calibration/outcome data is not copyable and improves every recommendation. **This is the real moat.**
-2. **Two-sided network (R2+).** Contributors + reputation + corporate broadcasters create supply that competitors must rebuild from zero. Reputation is portable only inside PulseOS → lock-in for top contributors.
+1. **Proprietary intelligence graph + outcome data [strongest, slow to build].** As users act and outcomes are observed, LifeIQ accumulates a labeled dataset of *which recommendations actually paid off for which user types*. This calibration/outcome data is not copyable and improves every recommendation. **This is the real moat.**
+2. **Two-sided network (R2+).** Contributors + reputation + corporate broadcasters create supply that competitors must rebuild from zero. Reputation is portable only inside LifeIQ → lock-in for top contributors.
 3. **Trust brand.** Being known as the *calibrated, evidence-linked, doesn't-cry-wolf* intelligence layer. Trust is slow to build, fast to lose, and hard for an attention-maximizing incumbent to copy (their incentives conflict).
 4. **Switching cost via memory + personalization.** The longer you use it, the better it knows your goals; leaving means re-teaching a competitor.
 5. **Enterprise compliance + integration [R4].** SOC2/ISO, private deployment, SSO/SCIM, audit — boring, expensive, and a real moat against consumer-grade entrants.
@@ -46,4 +46,4 @@ PulseOS doesn't have one competitor — it has a competitor *per ecosystem*, plu
 - **Trust incident at a competitor poisons the category:** an AI "advice" scandal could chill the whole space. Mitigation: conservative claims, bright liability lines, visible methodology.
 
 ## Positioning statement
-> For goal-driven operators, professionals, and organizations drowning in signal, **PulseOS is the real-time intelligence layer that tells you the highest-value action to take now — with calibrated confidence, linked evidence, and the dissenting view** — unlike news feeds (attention, not action), chat assistants (on-demand, no memory of your goals, no calibration), or finance terminals (expensive, narrow, not personalized).
+> For goal-driven operators, professionals, and organizations drowning in signal, **LifeIQ is the real-time intelligence layer that tells you the highest-value action to take now — with calibrated confidence, linked evidence, and the dissenting view** — unlike news feeds (attention, not action), chat assistants (on-demand, no memory of your goals, no calibration), or finance terminals (expensive, narrow, not personalized).

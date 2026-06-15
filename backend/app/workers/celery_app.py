@@ -6,7 +6,10 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-celery_app = Celery("pulseos", broker=settings.rabbitmq_url, backend=settings.redis_url)
+# Broker: RabbitMQ at scale, Redis at MVP. Fall back to Redis when no AMQP URL is
+# configured (e.g. free single-box / Render hosting has Redis but no RabbitMQ).
+_broker = settings.rabbitmq_url or settings.redis_url
+celery_app = Celery("lifeiq", broker=_broker, backend=settings.redis_url)
 celery_app.conf.update(
     task_routes={
         "app.workers.tasks.enrich_signal": {"queue": "enrich"},

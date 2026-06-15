@@ -1,16 +1,16 @@
 openapi: 3.1.0
 info:
-  title: PulseOS API
+  title: LifeIQ API
   version: "1.0.0"
   description: >
     The Real-Time Intelligence Operating System. Authoritative machine-readable
     contract. Conventions in 06-api-contracts.md. This is a specification excerpt
     covering the core MVP surface; full surface is generated per service.
-  contact: { name: PulseOS Engineering, url: https://pulseos.com }
+  contact: { name: LifeIQ Engineering, url: https://lifeiq.com }
   license: { name: Proprietary }
 servers:
-  - url: https://api.pulseos.com/v1
-  - url: https://staging-api.pulseos.com/v1
+  - url: https://api.lifeiq.com/v1
+  - url: https://staging-api.lifeiq.com/v1
 security:
   - bearerAuth: []
 tags:

@@ -13,16 +13,16 @@ The constraint on modern decision-making is no longer *access* to information. I
 3. **Deciding** — what should I do, and what happens if I don't?
 4. **Trusting** — can I act on this without re-verifying it myself?
 
-Search engines, news apps, and chatbots help with (1) and partially (2). Almost nothing systematically does (3) and (4). PulseOS's entire reason to exist is to own **(3) decisions** and **(4) trust** — and to make (4) a first-class, visible property (confidence, evidence, dissent) rather than a hidden assumption.
+Search engines, news apps, and chatbots help with (1) and partially (2). Almost nothing systematically does (3) and (4). LifeIQ's entire reason to exist is to own **(3) decisions** and **(4) trust** — and to make (4) a first-class, visible property (confidence, evidence, dissent) rather than a hidden assumption.
 
-## What PulseOS is
+## What LifeIQ is
 
 - A **continuously-operating** intelligence layer (not request/response). It works while you sleep and tells you what changed and what to do.
 - A **decision engine** whose primary output is a ranked action list, each item carrying confidence, evidence, expected value, and cost-of-inaction.
 - A **multi-agent reasoning system** (the Strategic Council Engine) that produces auditable, dissent-aware analysis instead of a single confident voice.
 - A **network**: corporate broadcasts, community reports, and reputation make the intelligence richer than any single user could assemble alone.
 
-## What PulseOS is explicitly NOT
+## What LifeIQ is explicitly NOT
 
 - **Not a chatbot.** Conversation is an interface, not the product. The product is the standing answer to "what should I do now?"
 - **Not a news reader.** News is an input. We are judged on actions, not articles read.
@@ -48,7 +48,7 @@ Search engines, news apps, and chatbots help with (1) and partially (2). Almost 
 
 ## Naming & brand
 
-- **PulseOS** — "Pulse" = real-time, alive, vital signs of your world; "OS" = the substrate other decisions run on.
+- **LifeIQ** — "Pulse" = real-time, alive, vital signs of your world; "OS" = the substrate other decisions run on.
 - Voice: calm, precise, Bloomberg-meets-Linear. Never hype, never alarmist. The product earns attention by being *right and brief*, not loud.
 
 ## The "why now" (the bet)

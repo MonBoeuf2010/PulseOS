@@ -1,6 +1,6 @@
 # 05 — Feature Map
 
-Full inventory of the PulseOS surface, prioritized with **MoSCoW** (Must / Should / Could / Won't-yet) and mapped to release phase. "Won't-yet" ≠ never; it means *not before this gate*.
+Full inventory of the LifeIQ surface, prioritized with **MoSCoW** (Must / Should / Could / Won't-yet) and mapped to release phase. "Won't-yet" ≠ never; it means *not before this gate*.
 
 Legend — Phase: **M**=MVP, **2/3/4**=R2/R3/R4. Priority: **Mu/Sh/Co/Wo**.
 

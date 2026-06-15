@@ -52,4 +52,4 @@ The expensive part (analyzing public signals) is **shared across all users** —
 - Year 3+: Enterprise becomes the margin and ACV driver; Pro is the funnel/brand.
 
 ## The honest monetization truth
-Consumer AI subscriptions have **high churn and price sensitivity**. The durable money is almost certainly **enterprise** (Meeting Intelligence + compliance + private deployment). The consumer wedge's primary job may be **funnel, brand, and data**, not profit. We should be open to the possibility that PulseOS is ultimately an enterprise intelligence company with a consumer top-of-funnel — and not over-invest in consumer monetization before that's clear.
+Consumer AI subscriptions have **high churn and price sensitivity**. The durable money is almost certainly **enterprise** (Meeting Intelligence + compliance + private deployment). The consumer wedge's primary job may be **funnel, brand, and data**, not profit. We should be open to the possibility that LifeIQ is ultimately an enterprise intelligence company with a consumer top-of-funnel — and not over-invest in consumer monetization before that's clear.

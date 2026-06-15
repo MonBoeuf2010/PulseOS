@@ -9,7 +9,7 @@ Decision-makers cannot keep up with the volume of signal relevant to their goals
 
 ## 2. The Wedge (the most important section in this document)
 
-The full PulseOS vision is five ecosystems. **We will not build five products at once.** We pick one wedge: the narrowest thing that delivers the master JTBD to one persona, end-to-end, and creates a daily habit.
+The full LifeIQ vision is five ecosystems. **We will not build five products at once.** We pick one wedge: the narrowest thing that delivers the master JTBD to one persona, end-to-end, and creates a daily habit.
 
 ### Wedge decision: **The Daily Intelligence Briefing for the "Operator/Builder" persona, in a single vertical we seed ourselves.**
 

@@ -1,7 +1,7 @@
 [project]
-name = "pulseos-backend"
+name = "lifeiq-backend"
 version = "0.1.0"
-description = "PulseOS backend — FastAPI intelligence platform"
+description = "LifeIQ backend — FastAPI intelligence platform"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.111",

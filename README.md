@@ -1,8 +1,8 @@
-# PulseOS — The Real-Time Intelligence Operating System
+# LifeIQ — The Real-Time Intelligence Operating System
 
 > Continuously converts global, corporate, community, personal, and economic signals into the **highest-value action you should take right now** — with calibrated confidence, linked evidence, and the dissenting view.
 
-This repository contains the PulseOS architecture documentation and a production-architected reference implementation (backend + frontend scaffold).
+This repository contains the LifeIQ architecture documentation and a production-architected reference implementation (backend + frontend scaffold).
 
 ## Repository layout
 ```
@@ -44,12 +44,12 @@ docker compose -f infra/docker-compose.yml up --build
 ## Quick start — without Docker
 ```bash
 # 1. Postgres 16 with the pgvector extension, then:
-createdb pulseos && psql -d pulseos -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+createdb lifeiq && psql -d lifeiq -c 'CREATE EXTENSION IF NOT EXISTS vector;'
 
 # 2. Backend
 cd backend && python -m venv .venv && . .venv/bin/activate
 pip install -e .
-export DATABASE_URL="postgresql+asyncpg://<user>@localhost:5432/pulseos"
+export DATABASE_URL="postgresql+asyncpg://<user>@localhost:5432/lifeiq"
 export ENV=development SECRET_KEY="<32+ byte secret>"
 python -m scripts.seed                 # creates demo data + a first briefing
 uvicorn app.main:app --reload          # → http://localhost:8000/docs
@@ -58,7 +58,7 @@ uvicorn app.main:app --reload          # → http://localhost:8000/docs
 cd frontend && npm install
 NEXT_PUBLIC_API_BASE=http://localhost:8000 npm run dev   # → http://localhost:3000
 
-# Demo login:  demo@pulseos.com  /  pulsedemo123
+# Demo login:  demo@lifeiq.com  /  pulsedemo123
 ```
 
 Tests: `cd backend && pytest` (no DB or API key required — runs against the deterministic council stub).
@@ -67,4 +67,4 @@ Tests: `cd backend && pytest` (no DB or API key required — runs against the de
 Start with `docs/phase-1/00-README.md`. The single most important idea: **win the wedge first** (the daily briefing for one persona in one vertical), then earn each additional ecosystem behind a hard gate.
 
 ## License
-Proprietary — © PulseOS.
+Proprietary — © LifeIQ.

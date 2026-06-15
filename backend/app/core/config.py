@@ -1,7 +1,34 @@
 """Centralized configuration (12-factor, env-driven). Secrets come from AWS Secrets
 Manager in prod (injected as env). Never hard-code secrets."""
 from functools import lru_cache
+from urllib.parse import urlsplit, urlunsplit
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _normalize_async_pg(url: str) -> str:
+    """Coerce a plain Postgres URL into the asyncpg driver form the app uses.
+
+    Managed hosts (Render, Railway, Heroku, Fly) hand out `postgres://` or
+    `postgresql://` URLs, sometimes with a `?sslmode=`/`channel_binding` query
+    that asyncpg's DSN parser rejects. We rewrite the scheme to
+    `postgresql+asyncpg://` and drop those libpq-only query params so a single
+    DATABASE_URL works unchanged across every provider.
+    """
+    if not url:
+        return url
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://"):]
+    if url.startswith("postgresql://"):
+        url = "postgresql+asyncpg://" + url[len("postgresql://"):]
+    if "+asyncpg" in url and "?" in url:
+        parts = urlsplit(url)
+        drop = {"sslmode", "channel_binding", "ssl"}
+        kept = [kv for kv in parts.query.split("&")
+                if kv and kv.split("=", 1)[0] not in drop]
+        url = urlunsplit(parts._replace(query="&".join(kept)))
+    return url
 
 
 class Settings(BaseSettings):
@@ -11,10 +38,21 @@ class Settings(BaseSettings):
     secret_key: str = "dev-only-change-me"
 
     # Datastores
-    database_url: str = "postgresql+asyncpg://pulse:pulse@localhost:5432/pulseos"
+    database_url: str = "postgresql+asyncpg://pulse:pulse@localhost:5432/lifeiq"
     redis_url: str = "redis://localhost:6379/0"
     rabbitmq_url: str = "amqp://pulse:pulse@localhost:5672//"
     opensearch_url: str = "http://localhost:9200"
+
+    # Background jobs: Celery worker + beat (ingestion, scheduled briefings,
+    # moderation). Off by default so the API runs standalone on free/single-box
+    # hosting — briefings build inline in the request and posts skip async
+    # moderation. Flip on once a worker + broker are deployed.
+    enable_background_jobs: bool = False
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _coerce_database_url(cls, v: str) -> str:
+        return _normalize_async_pg(v)
 
     # Auth
     jwt_private_key_pem: str = ""

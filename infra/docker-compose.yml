@@ -1,4 +1,4 @@
-# PulseOS — local development stack
+# LifeIQ — local development stack
 # Production runs on AWS (ECS/Fargate → EKS) per docs/phase-1/09-infrastructure-plan.md
 version: "3.9"
 
@@ -8,12 +8,12 @@ services:
     environment:
       POSTGRES_USER: pulse
       POSTGRES_PASSWORD: pulse
-      POSTGRES_DB: pulseos
+      POSTGRES_DB: lifeiq
     ports: ["5432:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pulse -d pulseos"]
+      test: ["CMD-SHELL", "pg_isready -U pulse -d lifeiq"]
       interval: 5s
       timeout: 5s
       retries: 10

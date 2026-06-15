@@ -1,4 +1,4 @@
-# PulseOS — Phase 1 Founding Documentation
+# LifeIQ — Phase 1 Founding Documentation
 
 **The Real-Time Intelligence Operating System.**
 
@@ -6,7 +6,7 @@
 > Owner: Founding team
 > Last updated: 2026-06-09
 
-This directory is the canonical source of truth for *why* PulseOS exists, *what* it is, *who* it serves, *how* it makes money, and *how* it is built and defended. It is written to guide a team for multiple years and to survive contact with investors, enterprise security reviews, and the first 10,000 → 10,000,000 users.
+This directory is the canonical source of truth for *why* LifeIQ exists, *what* it is, *who* it serves, *how* it makes money, and *how* it is built and defended. It is written to guide a team for multiple years and to survive contact with investors, enterprise security reviews, and the first 10,000 → 10,000,000 users.
 
 It is deliberately **opinionated and self-critical**. Where the original brief makes an optimistic assumption, these documents name it, stress-test it, and propose a falsifiable way to validate or kill it.
 
@@ -14,11 +14,11 @@ It is deliberately **opinionated and self-critical**. Where the original brief m
 
 ## The one-sentence thesis
 
-People are drowning in information and starved for decisions. PulseOS continuously converts the firehose of global, corporate, community, personal, and economic signals into a ranked list of **the highest-value actions a given user should take right now**, each with confidence, evidence, expected value, and the cost of ignoring it.
+People are drowning in information and starved for decisions. LifeIQ continuously converts the firehose of global, corporate, community, personal, and economic signals into a ranked list of **the highest-value actions a given user should take right now**, each with confidence, evidence, expected value, and the cost of ignoring it.
 
 ## The one honest risk
 
-This is five products (dashboard, corporate live rooms, community network, AI communities, opportunity engine) wearing one trench coat. The single greatest threat to PulseOS is **building all five at once and being mediocre at all of them.** Phase 1's most important output is therefore not the grand vision — it is the **wedge**: the one user, one job, one loop we win first. See `02-prd.md` §"The Wedge" and `11-development-roadmap.md`.
+This is five products (dashboard, corporate live rooms, community network, AI communities, opportunity engine) wearing one trench coat. The single greatest threat to LifeIQ is **building all five at once and being mediocre at all of them.** Phase 1's most important output is therefore not the grand vision — it is the **wedge**: the one user, one job, one loop we win first. See `02-prd.md` §"The Wedge" and `11-development-roadmap.md`.
 
 ---
 

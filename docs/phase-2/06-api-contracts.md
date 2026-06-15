@@ -3,14 +3,14 @@
 The machine-readable contract lives in [`openapi.yaml`](./openapi.yaml). This doc gives the conventions and the surface map; the YAML is authoritative.
 
 ## Conventions
-- **Base:** `https://api.pulseos.com/v1`. Versioned in path; breaking changes → `/v2` with overlap window.
+- **Base:** `https://api.lifeiq.com/v1`. Versioned in path; breaking changes → `/v2` with overlap window.
 - **Auth:** `Authorization: Bearer <access_jwt>` (short-lived, ~15 min). Refresh via `POST /auth/refresh` (rotating refresh token, httpOnly cookie or secure store). Service tokens for internal callers.
 - **Tenancy:** active tenant from the JWT `tid` claim; switch via `X-Tenant-Id` (must be a tenant the user is a member of; validated + audited).
 - **Content type:** `application/json`; cursor pagination (`?cursor=&limit=`), never offset at scale.
 - **Idempotency:** mutating POSTs accept `Idempotency-Key` header (stored 24h) → safe retries.
 - **Errors:** RFC 9457 `application/problem+json`:
   ```json
-  { "type":"https://pulseos.com/errors/validation",
+  { "type":"https://lifeiq.com/errors/validation",
     "title":"Validation failed","status":422,
     "detail":"confidence must be in [0,1]","instance":"/v1/briefings/123",
     "trace_id":"...", "errors":[{"field":"confidence","msg":"..."}] }
@@ -100,7 +100,7 @@ POST   /privacy/export   -> 202         POST /privacy/delete -> 202   GET /priva
 ```
 
 ## Webhooks (outbound, for enterprise integrations)
-Signed (HMAC-SHA256, `X-PulseOS-Signature`), retried with backoff, idempotent: `briefing.generated`, `opportunity.detected`, `council.completed`, `broadcast.published`, `meeting.analyzed`.
+Signed (HMAC-SHA256, `X-LifeIQ-Signature`), retried with backoff, idempotent: `briefing.generated`, `opportunity.detected`, `council.completed`, `broadcast.published`, `meeting.analyzed`.
 
 ## Versioning & deprecation
 - Additive changes are non-breaking and shipped continuously.

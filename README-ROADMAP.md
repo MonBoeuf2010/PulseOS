@@ -1,4 +1,4 @@
-# PulseOS — Launch Roadmap (what's missing, why, and in what order)
+# LifeIQ — Launch Roadmap (what's missing, why, and in what order)
 
 Your repo already works end-to-end in dev: auth, the 7-agent council, AI chat,
 briefings, a basic feed, posting, search. What's below is ONLY what's missing

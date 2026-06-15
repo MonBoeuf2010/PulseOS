@@ -1,4 +1,4 @@
-# Phase 4 — PulseOS Design System
+# Phase 4 — LifeIQ Design System
 
 > Bar: Apple (clarity, restraint), Linear (speed, density, keyboard-first), Stripe (precision, trust), Arc (delight, spatial nav), Notion (flexible structure). **Dark-mode default, light supported. Mobile-first, desktop-optimized. WCAG 2.2 AA.** These tokens are implemented in `frontend/styles` and `tailwind.config.ts`.
 
@@ -30,7 +30,7 @@ Semantic tokens (not raw hex in components). Dark is canonical; light is derived
 | `--text-primary` | `#F2F3F5` | body |
 | `--text-secondary` | `#A6ABB3` | meta |
 | `--text-tertiary` | `#6B7178` | hints |
-| `--accent` | `#5B8DEF` (PulseOS blue) | primary actions, links |
+| `--accent` | `#5B8DEF` (LifeIQ blue) | primary actions, links |
 | `--accent-hover` | `#6F9CF2` | |
 | `--success` | `#3FB97A` | positive EV, gains |
 | `--warning` | `#E0A23C` | risks, attention |
@@ -78,7 +78,7 @@ Weights: 400 body, 500 emphasis, 600 headings. Never 700+ (too loud for the bran
 
 Foundational (shadcn): Button, Input, Select, Checkbox, Radio, Switch, Tabs, Dialog, Sheet, Popover, Tooltip, Dropdown, Toast, Skeleton, Badge, Avatar, ScrollArea, Command (⌘K).
 
-**PulseOS-specific (the brand-defining ones):**
+**LifeIQ-specific (the brand-defining ones):**
 | Component | Purpose | Key behavior |
 |---|---|---|
 | `BriefingCard` | one ranked action | title, rationale, confidence meter, EV, cost-of-inaction, evidence expander, 1-tap feedback |

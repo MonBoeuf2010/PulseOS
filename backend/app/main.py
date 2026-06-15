@@ -1,4 +1,4 @@
-"""PulseOS API entrypoint (modular monolith; modules = future services, Phase 2.5)."""
+"""LifeIQ API entrypoint (modular monolith; modules = future services, Phase 2.5)."""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
     # shutdown: drain connections (engine disposed by process exit)
 
 
-app = FastAPI(title="PulseOS API", version="1.0.0", lifespan=lifespan,
+app = FastAPI(title="LifeIQ API", version="1.0.0", lifespan=lifespan,
               docs_url="/docs", openapi_url="/openapi.json")
 
 # Rate limiting: register the limiter + 429 handler, and the middleware that

@@ -8,7 +8,7 @@
        /  \       Contract tests (service boundaries, OpenAPI)
       /----\      Integration (DB+Redis+queue+search, real deps in containers)
      /------\     Unit (many, fast, pure logic)
-    /--------\    + AI Eval layer (calibration, hallucination, prompt-injection) — PulseOS-specific
+    /--------\    + AI Eval layer (calibration, hallucination, prompt-injection) — LifeIQ-specific
 ```
 
 ### Unit
@@ -29,7 +29,7 @@
 - Playwright. Cover Phase 1 journeys: first-run→briefing (<60s activation), feedback loop, opportunity→act (WARU), council deep-dive, community submit→verify, enterprise meeting→intelligence, privacy export/delete.
 - Run on staging against real services + seeded data; visual regression on key screens.
 
-### AI eval layer (unique to PulseOS — gates model/prompt changes)
+### AI eval layer (unique to LifeIQ — gates model/prompt changes)
 - **Golden eval sets** per surface (briefing relevance, opportunity EV accuracy, verification correctness, council synthesis quality).
 - **Calibration tests:** predicted vs. realized confidence; ECE/Brier must stay within bar (Phase 1 H3) or the change is blocked.
 - **Hallucination tests:** factual claims must be source-grounded; ungrounded claims flagged → fail.

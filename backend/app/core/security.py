@@ -36,7 +36,7 @@ def issue_access_token(*, user_id: UUID, tenant_id: UUID, roles: list[str],
     payload = {
         "sub": str(user_id), "tid": str(tenant_id), "roles": roles, "scopes": scopes,
         "amr": amr, "sid": str(session_id), "iat": now,
-        "exp": now + settings.access_token_ttl_seconds, "iss": "pulseos",
+        "exp": now + settings.access_token_ttl_seconds, "iss": "lifeiq",
     }
     return jwt.encode(payload, settings.jwt_private_key_pem or settings.secret_key,
                       algorithm=settings.jwt_alg if settings.jwt_private_key_pem else "HS256")
@@ -45,7 +45,7 @@ def issue_access_token(*, user_id: UUID, tenant_id: UUID, roles: list[str],
 def verify_access_token(token: str) -> dict:
     key = settings.jwt_public_key_pem or settings.secret_key
     alg = settings.jwt_alg if settings.jwt_public_key_pem else "HS256"
-    return jwt.decode(token, key, algorithms=[alg], issuer="pulseos")
+    return jwt.decode(token, key, algorithms=[alg], issuer="lifeiq")
 
 
 # ---------- RBAC ----------
