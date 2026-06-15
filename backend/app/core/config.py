@@ -8,13 +8,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _normalize_async_pg(url: str) -> str:
-    """Coerce a plain Postgres URL into the asyncpg driver form the app uses.
+    """Coerce a managed-host Postgres URL into the asyncpg form the app uses.
 
-    Managed hosts (Render, Railway, Heroku, Fly) hand out `postgres://` or
-    `postgresql://` URLs, sometimes with a `?sslmode=`/`channel_binding` query
-    that asyncpg's DSN parser rejects. We rewrite the scheme to
-    `postgresql+asyncpg://` and drop those libpq-only query params so a single
-    DATABASE_URL works unchanged across every provider.
+    Free/managed Postgres (Neon, Supabase, Render, Railway, Heroku, Fly) hand out
+    `postgres://`/`postgresql://` URLs, usually with a `?sslmode=require` (and
+    sometimes `channel_binding=require`) query. asyncpg's connect() does NOT
+    accept the libpq spellings `sslmode`/`channel_binding` and errors on them —
+    but SQLAlchemy's asyncpg dialect *does* understand `ssl=require`. So we:
+      • rewrite the scheme to `postgresql+asyncpg://`
+      • rename `sslmode` → `ssl` (keeps TLS on, which Neon/Supabase require)
+      • drop `channel_binding` (libpq-only)
+    The result is one DATABASE_URL that works unchanged across every provider —
+    paste the connection string the host shows you, nothing to edit by hand.
     """
     if not url:
         return url
@@ -24,10 +29,17 @@ def _normalize_async_pg(url: str) -> str:
         url = "postgresql+asyncpg://" + url[len("postgresql://"):]
     if "+asyncpg" in url and "?" in url:
         parts = urlsplit(url)
-        drop = {"sslmode", "channel_binding", "ssl"}
-        kept = [kv for kv in parts.query.split("&")
-                if kv and kv.split("=", 1)[0] not in drop]
-        url = urlunsplit(parts._replace(query="&".join(kept)))
+        out = []
+        for kv in parts.query.split("&"):
+            if not kv:
+                continue
+            key, _eq, val = kv.partition("=")
+            if key == "channel_binding":
+                continue
+            if key == "sslmode":
+                key = "ssl"
+            out.append(f"{key}={val}" if val else key)
+        url = urlunsplit(parts._replace(query="&".join(out)))
     return url
 
 

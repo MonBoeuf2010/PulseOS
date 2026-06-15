@@ -1,178 +1,207 @@
-# LifeIQ — Launch on Apple Developer **without a domain**
+# 🚀 Launch LifeIQ — the simple, 100% free guide
 
-This is the no-domain path: the iOS app **bundles the web UI inside the app**
-(so the UI needs no website/domain), and talks to a backend hosted on a **free
-Render subdomain** (`*.onrender.com` — a free URL, not a domain you buy). The
-only secret you supply is your **Anthropic API key**.
+Read this top to bottom and do exactly what it says. Every click is spelled out.
+Don't skip steps. If something doesn't match perfectly, read the **❓ If you get
+stuck** notes at the bottom.
 
-Legend: 🟢 = you do it (account / paste a key / click) · ⚙️ = a command · ✅ = a check.
+## What you're about to build
+- A **backend** (the brain) running free on the internet at a web address like
+  `https://pulseos-api.onrender.com`.
+- The **iPhone app** that talks to it. The app already has the screens built in —
+  it just needs the backend to be live.
 
-**What you need**
-- An **Apple Developer Program** membership ($99/yr) — the one unavoidable cost.
-- An **Anthropic API key** (`sk-ant-…`) from console.anthropic.com.
-- A **GitHub account** (the repo `MonBoeuf2010/PulseOS` is already pushed).
-- **Xcode** (Mac App Store) — you're on macOS, good.
-- A **Render** account (free) — render.com, sign in with GitHub.
+## What it costs
+- **$0 / month** for hosting. Forever. (We use free plans that don't expire.)
+- **$99 / year** to Apple — the *only* unavoidable cost, and only if you want the
+  app on your iPhone / the App Store. Apple charges this; nobody can remove it.
 
-The repo is already prepared:
-- `render.yaml` — one-click backend deploy (API + free Postgres + free Redis).
-- `frontend/.env.production` — points the app at `https://pulseos-api.onrender.com`.
-- The iOS bundle in `frontend/ios/` is already built against that URL.
-- Bundle ID: `com.abcquickapps.lifeiq` · App name: **LifeIQ**.
+## The 4 free accounts you'll make (write down each email/password)
+1. **GitHub** — you already have this (your code lives there). ✅
+2. **Neon** — the database (stores users, briefings, chats). Free forever.
+3. **Render** — runs the backend. Free forever.
+4. **Apple Developer** — to put the app on an iPhone. $99/yr.
+
+You'll also paste in your **Anthropic API key** (your AI key, starts with
+`sk-ant-`). Get it from **console.anthropic.com → Settings → API Keys** if you
+don't have one yet.
+
+Total time: about **30–45 minutes**, most of it waiting for things to build.
 
 ---
 
-## Part 1 — Deploy the backend to Render (free, ~10 min)
+# PART 1 — Make the database (Neon) · ~5 min
 
-1. 🟢 Go to **render.com** → sign up / log in **with GitHub**. Authorize Render
-   to see the `PulseOS` repo.
-2. 🟢 Dashboard → **New +** → **Blueprint**.
-3. 🟢 Pick the **`MonBoeuf2010/PulseOS`** repo. Render reads `render.yaml` and
-   shows it will create: a **web service** (`pulseos-api`), a **Postgres** db
-   (`pulseos-db`), and a **Redis/Key Value** (`pulseos-redis`).
-4. 🟢 It will prompt for the one secret env var: **`ANTHROPIC_API_KEY`** → paste
-   your `sk-ant-…` key. (Everything else is wired automatically.)
-5. 🟢 Click **Apply**. First build takes ~5–8 min (Docker build + DB migrations
-   run automatically on boot).
-6. ✅ When `pulseos-api` is **Live**, open its URL — it'll be
-   **`https://pulseos-api.onrender.com`** — and visit **`/health`**. You want:
+The database is just a place to store data. Neon gives one away free.
+
+1. Open a browser tab → go to **https://neon.tech**.
+2. Click **Sign up** (top-right). Choose **Continue with GitHub**. A box pops up
+   asking to authorize — click **Authorize**.
+3. Neon asks a couple of setup questions and **creates a project for you
+   automatically**. If it asks you to name it, type `pulseos` and accept the
+   default region and Postgres version. Click **Create**.
+4. You'll land on the project **Dashboard**. Look for a box titled
+   **Connection string** (sometimes under a **Connect** button).
+5. **Important:** if there's a toggle labelled **Connection pooling**, leave it
+   **OFF** (un-checked). (It still works if it's on — but off is simplest.)
+6. Click the **copy icon** next to the connection string. You just copied
+   something that looks like this (yours will differ):
+   ```
+   postgresql://neondb_owner:AbC123xyz@ep-cool-bird-12345.us-east-2.aws.neon.tech/neondb?sslmode=require
+   ```
+7. **Paste it somewhere safe for a minute** (a Notes window). You'll need it in
+   Part 2. ✅ **Part 1 done.**
+
+> You do **not** need to create tables or run anything here. The backend builds
+> the database automatically the first time it starts.
+
+---
+
+# PART 2 — Put the backend online (Render) · ~10 min + waiting
+
+1. New browser tab → **https://render.com**.
+2. Click **Get Started** / **Sign in** → **GitHub** → **Authorize**.
+3. In the Render dashboard, click the **New +** button (top-right) → choose
+   **Blueprint**.
+4. Render shows your GitHub repositories. Find **`PulseOS`** and click
+   **Connect** next to it.
+   - If you don't see it: click **"Configure account / Configure GitHub"**, allow
+     Render to access the `PulseOS` repo, come back, and it'll appear.
+5. Render reads the `render.yaml` file in your repo and shows **one service to
+   create: `pulseos-api`**. Below it, it asks you to fill in two values (they're
+   marked as needing input):
+   - **`DATABASE_URL`** → paste the Neon connection string you copied in Part 1.
+   - **`ANTHROPIC_API_KEY`** → paste your `sk-ant-...` key.
+6. Click **Apply** (or **Create Services**).
+7. Now **wait**. Render downloads, builds, and starts your backend. This takes
+   about **5–8 minutes**. You'll see logs scrolling. It's done when the service
+   status turns **Live** (green).
+8. **Check it worked:** at the top of the `pulseos-api` page is its web address,
+   `https://pulseos-api.onrender.com` (or similar). Click it, then add `/health`
+   to the end in your browser:
+   ```
+   https://pulseos-api.onrender.com/health
+   ```
+   You should see:
    ```json
    {"status":"ok","env":"production"}
    ```
-   Also `…/docs` shows the live API. **That's your backend — no domain, valid HTTPS.**
+   🎉 **Your backend is live on the internet, for free.** ✅ **Part 2 done.**
 
-> **If Render gives the service a different URL** (e.g. the name `pulseos-api`
-> was taken and it became `pulseos-api-x7q2.onrender.com`): copy the real URL,
-> paste it into `frontend/.env.production` as `NEXT_PUBLIC_API_BASE=…` (origin
-> only, no `/v1`), then rebuild the app bundle:
-> ```
-> cd frontend && npm run build && npx cap sync ios
-> ```
+> **Did Render give you a different web address?** (e.g. it added random letters
+> because `pulseos-api` was taken.) Copy your real address, then do the small fix
+> in **❓ If you get stuck → "My Render URL is different"** before Part 3.
 
-> **If `type: redis` is rejected** in the blueprint preview, edit `render.yaml`:
-> change the two `redis` lines to `keyvalue` (Render renamed the product) and
-> re-apply. Nothing else changes.
-
-### Free-tier facts to know
-- The free web service **sleeps after ~15 min idle**; the next request wakes it
-  in ~30 s. Fine for testing and launch. To kill the sleep later, change
-  `plan: free` → `plan: starter` ($7/mo) in `render.yaml`.
-- Free Postgres is **free for 30 days**, then needs a paid plan ($7/mo) — or
-  swap in a free, non-expiring Postgres (Neon/Supabase, both support pgvector)
-  by setting `DATABASE_URL` on the service by hand.
-- Background jobs (scheduled daily briefings, RSS ingest, async post moderation)
-  are **off** — they need an always-on worker (paid). **Everything the user
-  touches works without them**: register/login, dashboard, on-demand briefings,
-  AI chat, the council, the feed. Turn them on later by adding a Render
-  Background Worker and setting `ENABLE_BACKGROUND_JOBS=true`.
+> **First click is slow?** Free backends "sleep" after 15 minutes of no use and
+> take ~30 seconds to wake up. Normal. Only the first request after a nap is slow.
 
 ---
 
-## Part 2 — The iOS app is already pointed at your backend
+# PART 3 — Put the app on your iPhone (Apple) · the $99 part
 
-Nothing to do here unless your Render URL differs from the default (see the box
-above). The app's bundled web UI was built with
-`NEXT_PUBLIC_API_BASE=https://pulseos-api.onrender.com` and synced into
-`frontend/ios/`. The native shell loads that bundled UI and calls your Render API.
+You do this on your Mac (the code is already on it at `~/PulseOS`).
 
-To re-verify at any time:
-```
-cd frontend
-grep -rl "pulseos-api.onrender.com" ios/App/App/public/_next   # should list a file
-```
+## 3A — One-time Apple setup
+1. Go to **https://developer.apple.com/programs** → **Enroll**. Sign in with your
+   Apple ID and pay the **$99/year**. Choose **Individual** — it's the fastest
+   (no company paperwork). Apple may take a few hours to approve. ☕
+2. Install **Xcode** from the **Mac App Store** (it's big — let it download).
+3. Open Xcode once. Top menu: **Xcode → Settings → Accounts → the “+” button →
+   Apple ID** → sign in with the same Apple ID.
 
----
+## 3B — Open the app project
+1. Open the **Terminal** app on your Mac.
+2. Copy-paste these two lines, pressing Return after each:
+   ```
+   cd ~/PulseOS/frontend
+   npx cap open ios
+   ```
+   This opens your app in Xcode. (First time it may ask to install tools — say
+   yes.)
 
-## Part 3 — Build & ship the app (Apple Developer)
+## 3C — Tell Xcode it's your app
+1. In Xcode's left sidebar, click the blue **App** icon at the very top.
+2. Click the **Signing & Capabilities** tab.
+3. **Team**: pick your name / Apple Developer account from the dropdown.
+4. **Bundle Identifier**: it's `com.abcquickapps.lifeiq`. If Xcode shows a red
+   error saying it's already taken, change it to something unique like
+   `com.YOURNAME.lifeiq` (lowercase, no spaces).
+5. Make sure **"Automatically manage signing"** is checked. Xcode handles the
+   rest.
 
-### 3.1 Enroll (do first — approval can take 24–48 h)
-1. 🟢 **developer.apple.com/programs** → enroll in the **Apple Developer Program**
-   ($99/yr). Personal (individual) enrollment is fastest — no D-U-N-S needed.
-2. 🟢 Open **Xcode** once and sign in: **Xcode → Settings → Accounts → +** →
-   add your Apple ID.
+## 3D — Run it on your iPhone
+1. Plug your iPhone into the Mac with a cable. Unlock the phone. If it asks
+   **"Trust this computer?"** tap **Trust**.
+2. At the top of Xcode, where it shows a device name, pick **your iPhone**.
+3. Click the **▶︎ (Play)** button. Xcode builds and installs the app.
+4. First time only: on your iPhone go to **Settings → General → VPN & Device
+   Management → (your Apple ID) → Trust**. Then tap the app icon again.
+5. The app opens → tap **"No account? Create one"** → make an account → you're in.
+   Try the AI chat. (If the very first thing is slow, that's the backend waking
+   up — wait ~30s.) 🎉 **The app works on your phone.**
 
-### 3.2 Open the project in Xcode
-```
-cd /Users/monboeuf/PulseOS/frontend
-npx cap open ios
-```
-This opens `ios/App/App.xcworkspace` in Xcode.
+**If your goal was "use it on my own iPhone," you're done here.** ✅
 
-### 3.3 Set signing
-1. 🟢 In Xcode, select the **App** target → **Signing & Capabilities**.
-2. 🟢 Set **Team** = your Apple Developer account.
-3. 🟢 **Bundle Identifier** = `com.abcquickapps.lifeiq` (must be globally unique —
-   if Apple says it's taken, change it here *and* in
-   `frontend/capacitor.config.ts` → `appId`, then `npx cap sync ios`).
-4. 🟢 Leave **Automatically manage signing** checked — Xcode creates the
-   provisioning profile for you.
-
-### 3.4 Run on your own iPhone (smoke test)
-1. 🟢 Plug in your iPhone, select it as the run target, press **▶︎ Run**.
-2. 🟢 First run: on the iPhone, **Settings → General → VPN & Device Management**
-   → trust your developer cert.
-3. ✅ The app launches → **Create account** → you land on the dashboard and the
-   AI chat works (it's calling your Render backend). If the first action is slow,
-   that's the free dyno waking up (~30 s) — only the first hit after idle.
-
-### 3.5 Ship to TestFlight (and App Store)
-1. 🟢 In Xcode, set the run destination to **Any iOS Device (arm64)**.
-2. ⚙️ **Product → Archive**. When it finishes, the Organizer opens.
-3. 🟢 **Distribute App → App Store Connect → Upload**.
-4. 🟢 Go to **appstoreconnect.apple.com → My Apps → +** → **New App**:
-   - Platform iOS · Name **LifeIQ** · Bundle ID `com.abcquickapps.lifeiq` ·
-     pick a primary language and SKU.
-5. 🟢 Your build appears under **TestFlight** in a few minutes (after Apple
-   processes it). Add yourself as an **Internal Tester** → install via the
-   **TestFlight** app on your iPhone. **This is the finish line for "launch it
-   for me."**
-6. 🟢 *(Public release)* To submit to the App Store, fill in: description,
-   screenshots (capture from the iOS Simulator or your device), the **App
-   Privacy** questionnaire (declare: account email + usage data; ads only if you
-   later enable AdSense), and **provide a demo account** in the review notes —
-   register one in the app and paste those credentials so the reviewer can log
-   in. Then **Submit for Review** (typically 1–3 days).
+## 3E — (Optional) Share it / put it on the App Store
+1. In Xcode, change the device selector (top) to **"Any iOS Device (arm64)"**.
+2. Menu: **Product → Archive**. Wait for it to finish; a window opens.
+3. Click **Distribute App → App Store Connect → Upload**. Follow the prompts.
+4. Go to **https://appstoreconnect.apple.com → My Apps → “+” → New App**. Fill in:
+   app name (**LifeIQ**), language, the same Bundle ID, and an SKU (any text like
+   `lifeiq01`).
+5. Under the **TestFlight** tab, after Apple finishes processing (a few minutes),
+   add yourself as an **Internal Tester**. Install the **TestFlight** app on your
+   iPhone from the App Store to test it like a real download.
+6. To go fully public: fill in description + screenshots + the **App Privacy**
+   questions (say you collect *email* and *usage data*; no tracking), add a
+   **demo account** in the review notes (make one in the app and write the
+   email/password so Apple's reviewer can log in), then **Submit for Review**.
+   Apple usually replies in 1–3 days.
 
 ---
 
-## Optional hardening (only for public App Store release)
+# ❓ If you get stuck
 
-- **Avoid the "it's just a website" rejection (Guideline 4.2).** The app already
-  has a native splash/icon and runs a bundled (not remote-loaded) UI, which
-  helps. The strongest single addition is **native push notifications** tied to
-  the daily briefing (`@capacitor/push-notifications`). Not required for
-  TestFlight or to use the app yourself.
-- **In-App Purchases.** Apple requires digital subscriptions sold *inside* the
-  iOS app to use Apple IAP, not Stripe. The backend is already wired for this via
-  a RevenueCat webhook (`/v1/iap/webhook`). To enable: create a free RevenueCat
-  account + your subscription product, set `NEXT_PUBLIC_REVENUECAT_IOS_KEY` in
-  `frontend/.env.production` and `REVENUECAT_WEBHOOK_AUTH` on the Render service,
-  rebuild (`npm run build && npx cap sync ios`). Until then the app ships with no
-  in-app purchases, which is fine for review.
+**"My Render URL is different from `pulseos-api.onrender.com`."**
+The app was built pointing at the default address. Point it at yours:
+1. Terminal:
+   ```
+   cd ~/PulseOS/frontend
+   open -e .env.production
+   ```
+2. Change the `NEXT_PUBLIC_API_BASE=` line to your real Render address (the part
+   ending in `.onrender.com`, no slash at the end). Save and close.
+3. Run:
+   ```
+   npm run build && npx cap sync ios
+   ```
+4. Go back to Xcode and Run again (Part 3D).
+
+**`/health` doesn't load / shows an error.**
+- Wait a minute and refresh — the backend may still be starting or waking up.
+- In Render, open `pulseos-api` → **Logs**. If you see a database error, your
+  `DATABASE_URL` is probably wrong: re-copy it from Neon (Part 1) and update it in
+  Render under the service's **Environment** tab, then click **Manual Deploy →
+  Deploy latest commit**.
+
+**The app opens but login/AI says "network error."**
+- The backend is asleep (wait 30s and retry), or the app's address doesn't match
+  your live Render address — see "My Render URL is different" above.
+
+**AI answers feel generic / robotic.**
+- Your `ANTHROPIC_API_KEY` isn't set. In Render → `pulseos-api` → **Environment**
+  → add/fix `ANTHROPIC_API_KEY` → **Manual Deploy**.
+
+**Will the free database fill up?**
+- Neon's free tier is generous (plenty for personal use and a launch). If you
+  ever outgrow it, Neon shows an upgrade button — but you won't need it early on.
 
 ---
 
-## One-screen summary
-1. **Render** → New → Blueprint → pick the repo → paste `ANTHROPIC_API_KEY` →
-   Apply → check `https://pulseos-api.onrender.com/health`.
-2. App is already built against that URL (rebuild only if your URL differs).
-3. **Xcode**: `npx cap open ios` → set Team + Bundle ID → Run on your iPhone.
-4. **Archive → Upload → TestFlight** → install on your phone. Done.
-
-**No domain anywhere. One key (Anthropic). One bundle. $0 hosting + $99 Apple.**
-
----
-
-## Troubleshooting
-- **App opens but every call fails / "network error":** the Render service is
-  asleep (first hit takes ~30 s) or the URL baked into the app doesn't match the
-  live Render URL. Re-check Part 1's box and rebuild.
-- **`/health` 404 or build failed on Render:** open the `pulseos-api` **Logs**.
-  A migration failure usually means the Postgres add-on isn't attached — confirm
-  all three resources were created by the Blueprint.
-- **Login works but AI replies are generic/stubbed:** `ANTHROPIC_API_KEY` isn't
-  set on the service (the app falls back to a deterministic offline stub). Set it
-  in the service's **Environment** and redeploy.
-- **CORS error in the WebView console:** the app's origin is
-  `capacitor://localhost`; make sure that's still in `CORS_ORIGINS` on the
-  service (it's set by `render.yaml`).
+## The whole thing in 6 lines
+1. **Neon** → sign up → copy the connection string.
+2. **Render** → New → Blueprint → pick `PulseOS` → paste the Neon string + your
+   `sk-ant-` key → Apply → check `/health`.
+3. **Apple Developer** → enroll ($99) → install Xcode.
+4. Terminal: `cd ~/PulseOS/frontend && npx cap open ios`.
+5. Xcode → set Team + Bundle ID → plug in iPhone → press ▶︎.
+6. Create an account in the app. Done. **No domain, $0 hosting.**
