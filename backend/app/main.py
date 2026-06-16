@@ -26,8 +26,13 @@ async def lifespan(app: FastAPI):
     # shutdown: drain connections (engine disposed by process exit)
 
 
+# In production, hide the interactive API explorer and schema so the full API
+# surface isn't published to anyone who hits the URL. Kept on in dev for convenience.
+_is_prod = settings.env != "development"
 app = FastAPI(title="LifeIQ API", version="1.0.0", lifespan=lifespan,
-              docs_url="/docs", openapi_url="/openapi.json")
+              docs_url=None if _is_prod else "/docs",
+              redoc_url=None if _is_prod else "/redoc",
+              openapi_url=None if _is_prod else "/openapi.json")
 
 # Rate limiting: register the limiter + 429 handler, and the middleware that
 # applies per-route @limiter.limit() decorators (Step 5.3).
@@ -38,7 +43,11 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins,
                    allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-app.mount("/metrics", make_asgi_app())          # Prometheus
+# Prometheus metrics. Exposed only in dev — in production the raw /metrics
+# endpoint would leak internal stats to anyone, so it's mounted behind the same
+# dev gate. Wire it to an authenticated/internal route if you need prod metrics.
+if not _is_prod:
+    app.mount("/metrics", make_asgi_app())
 app.include_router(api_router, prefix="/v1")
 
 

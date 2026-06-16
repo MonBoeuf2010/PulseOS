@@ -1,7 +1,7 @@
 """Request dependencies: auth principal extraction, tenant scoping, RBAC/ABAC guards."""
 from uuid import UUID
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.db import get_db_for_request
@@ -12,14 +12,16 @@ _bearer = HTTPBearer(auto_error=True)
 
 async def current_subject(
     creds: HTTPAuthorizationCredentials = Depends(_bearer),
-    x_tenant_id: str | None = Header(default=None),
 ) -> Subject:
     try:
         claims = verify_access_token(creds.credentials)
     except Exception:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid token")
-    tenant_id = UUID(x_tenant_id) if x_tenant_id else UUID(claims["tid"])
-    # NOTE: membership in x_tenant_id is validated against memberships table (SCAFFOLD).
+    # Tenant is taken ONLY from the signed token — never from a client-supplied
+    # header — so a logged-in user cannot scope their session to another tenant.
+    # (Multi-tenant membership switching, if ever needed, must verify membership
+    # against the memberships table before trusting any requested tenant id.)
+    tenant_id = UUID(claims["tid"])
     return Subject(user_id=UUID(claims["sub"]), tenant_id=tenant_id,
                    roles=claims.get("roles", []), attributes={},
                    mfa_level=1 if "mfa" in claims.get("amr", []) else 0)
