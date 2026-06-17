@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { clearSession, getSession } from "@/lib/auth";
 import { initRevenueCat } from "@/lib/revenuecat";
+import { useEntitlements } from "@/lib/useEntitlements";
+import { useAdmobBanner } from "@/lib/admob";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -31,6 +33,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
+
+  // Native iOS banner ads for ad-supported tiers only (Premium = ad-free).
+  // No-op on web; web ads render via <AdSlot/> (AdSense). Fail-safe.
+  const { status, loading } = useEntitlements();
+  useAdmobBanner(!loading && status.ads);
 
   useEffect(() => {
     const session = getSession();
