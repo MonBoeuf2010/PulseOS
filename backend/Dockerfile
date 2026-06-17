@@ -16,6 +16,7 @@ RUN pip install --upgrade pip && pip install .
 # mounted named volume inherits appuser ownership and stays writable.
 RUN useradd -m -u 10001 appuser \
     && mkdir -p /data/uploads \
+    && chmod +x /app/start.sh \
     && chown -R appuser /app /data/uploads
 USER appuser
 
@@ -23,4 +24,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 # In prod the schema is owned by Alembic — apply migrations, then serve.
 # (--proxy-headers: trust X-Forwarded-* from the Caddy TLS terminator in front.)
-CMD ["sh", "-c", "python -m alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"]
+CMD ["/app/start.sh"]

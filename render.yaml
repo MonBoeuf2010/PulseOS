@@ -23,10 +23,12 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
-    # No dockerCommand here on purpose: the Dockerfile's CMD already runs
-    # migrations + uvicorn and binds to Render's injected $PORT (${PORT:-8000}).
-    # Setting dockerCommand to an `sh -c "..."` string double-wraps it in a shell
-    # and breaks (the whole line gets read as one command -> exit 127).
+    # Run the startup script directly. A single-token command can't be mangled by
+    # shell-quoting (an `sh -c "a && b"` string double-wraps and dies with 127);
+    # the migrations + uvicorn + $PORT logic lives inside backend/start.sh.
+    # NOTE: this MUST be set (not omitted) — Render keeps a previously-saved
+    # command if the field is removed, so we overwrite it with a known-good value.
+    dockerCommand: /app/start.sh
     envVars:
       - key: ENV
         value: production
