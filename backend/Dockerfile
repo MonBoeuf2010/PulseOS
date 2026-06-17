@@ -20,7 +20,7 @@ RUN useradd -m -u 10001 appuser \
 USER appuser
 
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:8000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 # In prod the schema is owned by Alembic — apply migrations, then serve.
 # (--proxy-headers: trust X-Forwarded-* from the Caddy TLS terminator in front.)
-CMD ["sh", "-c", "python -m alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"]
+CMD ["sh", "-c", "python -m alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"]
