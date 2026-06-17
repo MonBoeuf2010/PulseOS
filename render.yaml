@@ -24,7 +24,7 @@ services:
     dockerContext: ./backend
     healthCheckPath: /health
     # Bind to Render's injected $PORT (not the Dockerfile's hard-coded 8000).
-    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"
+    dockerCommand: sh -c "python -m alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers"
     envVars:
       - key: ENV
         value: production
